@@ -10,6 +10,7 @@
 
 #include <list>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -21,12 +22,16 @@ extern "C"{
 
 };
 
+#include "Error.h"
+
 namespace JMedia{
+
     class Decoder {
     public:
         Decoder(AVCodecContext *codec_context);
         int decode(AVPacket *pkt, list<AVFrame *> &decoded_frame_list);
-        string errors() const ;
+        int convert_to_pcm(AVFrame *frame, string &pcm);
+        string &errors() const ;
 
     private:
         AVCodecContext              *m_codec_context;

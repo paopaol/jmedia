@@ -5,7 +5,7 @@
 
 #include <list>
 
-#include "JMediaReader.h"
+#include "Reader.h"
 
 namespace JMedia {
 
@@ -131,40 +131,6 @@ namespace JMedia {
 
 
 
-    int Reader::convert_to_pcm(AVFrame *decoded_frame, string &pcm) {
-        int error = 0;
-        char error_str[1024] = {0};
-        AVCodecContext  *codec_context = NULL;
-        int data_size = 0;
-
-
-        auto it = m_decoder.find(AVMEDIA_TYPE_AUDIO);
-
-        if (it == m_decoder.end()){
-            error = AVERROR_INVALIDDATA;
-            goto __return;
-        }
-
-        if (!decoded_frame) {
-            error = AVERROR_INVALIDDATA;
-            goto __return;
-        }
-
-        codec_context = std::get<0>(it->second);
-        pcm.resize(0, 0);
-        data_size = av_get_bytes_per_sample(codec_context->sample_fmt);
-        for (int i = 0; i < decoded_frame->nb_samples; i++) {
-            for (int ch = 0; ch < codec_context->channels; ch++) {
-                pcm.append((char *) decoded_frame->data[ch] + data_size * i, data_size);
-            }
-        }
-    __return:
-        if (error < 0) {
-            av_strerror(error, error_str, sizeof(error_str));
-            m_error = error_str;
-        }
-        return error;
-    }
 
 
     string &Reader::error() const {

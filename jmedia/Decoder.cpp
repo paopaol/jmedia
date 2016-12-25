@@ -2,7 +2,7 @@
 // Created by jz on 16-12-24.
 //
 
-#include "JMediaDecoder.h"
+#include "Decoder.h"
 
 
 namespace JMedia {
@@ -56,7 +56,36 @@ namespace JMedia {
         return error;
     }
 
-    string Decoder::errors() const {
+    int Decoder::convert_to_pcm(AVFrame *decoded_frame, string &pcm) {
+        int error = 0;
+        char error_str[1024] = {0};
+        AVCodecContext  *codec_context = NULL;
+        int data_size = 0;
+
+        if (!decoded_frame){
+            error = AVERROR_INVALIDDATA;
+            goto __return;
+        }
+
+        codec_context = m_codec_context;
+        pcm.resize(0, 0);
+        data_size = av_get_bytes_per_sample(codec_context->sample_fmt);
+        for (int i = 0; i < decoded_frame->nb_samples; i++) {
+            for (int ch = 0; ch < codec_context->channels; ch++) {
+                pcm.append((char *) decoded_frame->data[ch] + data_size * i, data_size);
+            }
+        }
+        __return:
+        if (error < 0) {
+            av_strerror(error, error_str, sizeof(error_str));
+            m_error = error_str;
+        }
+        return error;
+    }
+
+
+
+    string &Decoder::errors() const {
         return m_error;
     }
 }

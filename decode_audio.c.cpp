@@ -15,11 +15,13 @@ extern "C" {
 #include "libavformat/avformat.h"
 }
 
-#include "LibAVInputFileAudio.h"
+#include "jmedia/Reader.h"
+#include "jmedia/Decoder.h"
 
 int main(int argc, char *argv[]) {
-    LibAVInputFileAudio audio("in.mp3");
+    JMedia::Reader      audio("mp4.mp4");
     int error;
+
 
     av_register_all();
 
@@ -29,15 +31,41 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    JMedia::Packet  pkt;
+    std::list<AVFrame *>       frames;
 
     while (1) {
-        string pcm("", 0);
-        error = audio.read_pcm(pcm);
+        error = audio.read_packet(pkt);
         if (error < 0) {
             puts(audio.error().c_str());
             return 1;
         }
-        write(1, pcm.c_str(), pcm.size());
+        if (audio.media_type(pkt) == AVMEDIA_TYPE_AUDIO){
+            JMedia::Decoder decoder = audio.find_decoder(AVMEDIA_TYPE_AUDIO);
+
+            error = decoder.decode(&pkt.m_pkt, frames);
+            if (error < 0) {
+                puts(audio.error().c_str());
+                return 1;
+            }
+            for (auto frame = frames.begin(); frame != frames.end(); frame++){
+                string pcm;
+                AVFrame *f = *frame;
+                error = decoder.convert_to_pcm(f, pcm);
+                if (error < 0) {
+                    puts(decoder.errors().c_str());
+                    return 1;
+                }
+                write(1, pcm.c_str(), pcm.size());
+            }
+
+            while(!frames.empty()){
+                AVFrame *f = frames.front();
+                av_frame_free(&f);
+                frames.pop_front();
+            }
+        }
     }
+    av_image_copy();
     return 0;
 }

@@ -10,7 +10,8 @@
 #include <string>
 #include <tuple>
 #include <map>
-#include "JMediaDecoder.h"
+#include "Decoder.h"
+#include "Error.h"
 
 using namespace std;
 using namespace JMedia;
@@ -24,22 +25,6 @@ extern "C"{
 };
 
 namespace JMedia {
-    class Error:public exception{
-    public:
-        Error(int error){
-            char    err_str[1024] = {0};
-
-            av_strerror(error, err_str, sizeof(err_str));
-            m_error_string = err_str;
-        }
-        const char *what(){
-            return m_error_string.c_str();
-        }
-
-    private:
-        int     m_error_code;
-        string  m_error_string;
-    };
 
 
     struct Packet{
@@ -63,8 +48,6 @@ namespace JMedia {
         int read_packet(Packet &pkt);
         AVMediaType media_type(Packet &pkt);
         Decoder &find_decoder(AVMediaType media_type) throw(Error);
-        int read_pcm(string &pcm);
-        int convert_to_pcm(AVFrame *frame, string &pcm);
         string &error() const ;
         AVCodecContext  *CodecContext(AVMediaType media_type);
     private:
