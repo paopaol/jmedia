@@ -17,13 +17,60 @@ extern "C" {
 
 #include "jmedia/Reader.h"
 #include "jmedia/Decoder.h"
+#include "jmedia/Filter/FilterGraph.h"
+#include "jmedia/Filter/FilterConfig.h"
+#include "jmedia/Filter/FilterConfig_abuffer.h"
+#include "jmedia/Filter/FilterConfig_abuffersink.h"
+
+
+
+int test_FilterGraph()
+{
+    JMedia::FilterGraph     graph;
+
+    JMedia::FilterConfig_abuffer src(&graph, "src");
+    src.init();
+    JMedia::FilterConfig_abuffersink sink(&graph, "sink");
+    sink.init();
+    src.link(sink);
+
+    graph.config();
+    graph.set_src_sink(src, sink);
+
+
+}
+
+
 
 int main(int argc, char *argv[]) {
-    JMedia::Reader      audio("mp4.mp4");
+    JMedia::Reader      audio("in.mp3");
     int error;
 
 
+
     av_register_all();
+    avfilter_register_all();
+
+
+
+    JMedia::FilterGraph     graph;
+
+    JMedia::FilterConfig_abuffer src(&graph, "src");
+    src.set_sample_rate(44100);
+    src.set_sample_fmt(AV_SAMPLE_FMT_S16P);
+
+    AVRational time = {1, 96000};
+    src.set_time_base(time);
+    src.set_channel_layout(3);
+    src.init();
+    JMedia::FilterConfig_abuffersink sink(&graph, "sink");
+    sink.init();
+    src.link(sink);
+
+    graph.config();
+    graph.set_src_sink(src, sink);
+
+
 
     error = audio.open();
     if (error < 0) {
@@ -51,12 +98,22 @@ int main(int argc, char *argv[]) {
             for (auto frame = frames.begin(); frame != frames.end(); frame++){
                 string pcm;
                 AVFrame *f = *frame;
-                error = decoder.convert_to_pcm(f, pcm);
-                if (error < 0) {
-                    puts(decoder.errors().c_str());
-                    return 1;
+
+
+                error = graph.src_add_frame(f);
+                if (error < 0 ){
+                    puts(graph.errors().c_str());
+                    return 0;
                 }
-                write(1, pcm.c_str(), pcm.size());
+
+                while ((error = graph.sink_get_frame(f)) >= 0){
+                    error = decoder.convert_to_pcm(f, pcm);
+                    if (error < 0) {
+                        puts(decoder.errors().c_str());
+                        return 1;
+                    }
+                    write(1, pcm.c_str(), pcm.size());
+                }
             }
 
             while(!frames.empty()){
@@ -66,6 +123,5 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-    av_image_copy();
     return 0;
 }

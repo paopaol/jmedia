@@ -15,6 +15,7 @@ extern "C" {
 }
 
 #include "../Error.h"
+#include "FilterConfig.h"
 
 namespace JMedia{
     class FilterGraph {
@@ -22,9 +23,22 @@ namespace JMedia{
         FilterGraph()throw(Error);
         ~FilterGraph();
         AVFilterGraph *getAVFilterGraph();
+        int config();
+        int set_src_sink(FilterConfig &src, FilterConfig &sink);
+        int src_add_frame(AVFrame *frame);
+        int sink_get_frame(AVFrame *frame);
+        std::string &errors() const ;
+
+    protected:
+        int set_error(int error);
 
     private:
-        AVFilterGraph       *m_filter_graph;
+        AVFilterGraph           *m_filter_graph;
+        AVFilterContext         *m_src;
+        AVFilterContext         *m_sink;
+
+        int                     m_error_no;
+        mutable std::string     m_error_string;
     };
 
 }

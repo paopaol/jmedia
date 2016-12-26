@@ -12,6 +12,6 @@ set(SOURCE_FILES
         jmedia/Reader.h
         jmedia/Decoder.cpp
         jmedia/Decoder.h
-        jmedia/Error.h jmedia/Filter/FilterGraph.cpp jmedia/Filter/FilterGraph.h jmedia/Filter/FilterConfig.h jmedia/Filter/FilterConfig_abuffer.cpp jmedia/Filter/FilterConfig_abuffer.h)
+        jmedia/Error.h jmedia/Filter/FilterGraph.cpp jmedia/Filter/FilterGraph.h jmedia/Filter/FilterConfig.h jmedia/Filter/FilterConfig_abuffer.cpp jmedia/Filter/FilterConfig_abuffer.h jmedia/Filter/FilterConfig_abuffersink.cpp jmedia/Filter/FilterConfig_abuffersink.h jmedia/Filter/FilterConfig.cpp)
 add_executable(decode_audio ${SOURCE_FILES})
-target_link_libraries(decode_audio avformat avcodec avutil avdevice avfilter avresample pthread)
+target_link_libraries(decode_audio avformat avcodec avutil avdevice avfilter swscale avresample pthread)

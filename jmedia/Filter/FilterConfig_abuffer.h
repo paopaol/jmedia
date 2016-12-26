@@ -17,19 +17,19 @@ extern "C" {
 
 
 namespace JMedia {
-    class FilterConfig_abuffer : protected FilterConfig {
+    class FilterConfig_abuffer : public FilterConfig {
     public:
         FilterConfig_abuffer(FilterGraph *filter_graph, const std::string &name)throw(Error);
 
-        int set_channel_layout(int channel_layout)throw(Error);
+        int set_channel_layout(int channel_layout);
 
-        int set_sample_fmt(AVSampleFormat sample_fmt)throw(Error);
+        int set_sample_fmt(AVSampleFormat sample_fmt);
 
-        int set_time_base(AVRational time_base)throw(Error);
+        int set_time_base(AVRational time_base);
 
-        int set_sample_rate(int sample_rate)throw(Error);
+        int set_sample_rate(int sample_rate);
 
-        int init() throw(Error);
+        int init();
     };
 
 }

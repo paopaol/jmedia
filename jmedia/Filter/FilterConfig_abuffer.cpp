@@ -20,47 +20,36 @@ namespace JMedia {
         }
     }
 
-    int FilterConfig_abuffer::set_channel_layout(int channel_layout)throw(Error) {
+    int FilterConfig_abuffer::set_channel_layout(int channel_layout) {
         char ch_layout[64] = {0};
 
         av_get_channel_layout_string(ch_layout, sizeof(ch_layout), 0, channel_layout);
         int error = av_opt_set(m_filter_ctx, "channel_layout", ch_layout, AV_OPT_SEARCH_CHILDREN);
-        if (error < 0) {
-            throw Error(error);
-        }
-        return 0;
+        this->set_error(error);
+        return error;
     }
 
-    int FilterConfig_abuffer::set_sample_fmt(AVSampleFormat sample_fmt)throw(Error) {
+    int FilterConfig_abuffer::set_sample_fmt(AVSampleFormat sample_fmt) {
         int error = av_opt_set(m_filter_ctx, "sample_fmt", av_get_sample_fmt_name(sample_fmt), AV_OPT_SEARCH_CHILDREN);
-        if (error < 0) {
-            throw Error(error);
-        }
-        return 0;
+        this->set_error(error);
+        return error;
     }
 
-    int FilterConfig_abuffer::set_time_base(AVRational time_base)throw(Error) {
+    int FilterConfig_abuffer::set_time_base(AVRational time_base) {
         int error = av_opt_set_q(m_filter_ctx, "time_base", time_base, AV_OPT_SEARCH_CHILDREN);
-        if (error < 0) {
-            throw Error(error);
-        }
-        return 0;
+        this->set_error(error);
+        return error;
     }
 
-    int FilterConfig_abuffer::set_sample_rate(int sample_rate) throw(Error) {
+    int FilterConfig_abuffer::set_sample_rate(int sample_rate) {
         int error = av_opt_set_int(m_filter_ctx, "sample_rate", sample_rate, AV_OPT_SEARCH_CHILDREN);
-        if (error < 0) {
-            throw Error(error);
-        }
-
-        return 0;
+        this->set_error(error);
+        return error;
     }
 
-    int FilterConfig_abuffer::init()throw(Error) {
+    int FilterConfig_abuffer::init() {
         int error = avfilter_init_str(m_filter_ctx, NULL);
-        if (error < 0) {
-            throw Error(error);
-        }
-        return 0;
+        this->set_error(error);
+        return error;
     }
 }
