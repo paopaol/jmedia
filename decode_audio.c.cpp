@@ -24,11 +24,16 @@ extern "C" {
 
 
 
-int test_FilterGraph()
-{
-    JMedia::FilterGraph     graph;
 
+static int create_resample_context(JMedia::FilterGraph &graph, AVFrame *decoded_frame)
+{
     JMedia::FilterConfig_abuffer src(&graph, "src");
+    src.set_sample_rate(decoded_frame->sample_rate);
+    src.set_sample_fmt((AVSampleFormat)decoded_frame->format);
+
+    AVRational time = {1, decoded_frame->sample_rate};
+    src.set_time_base(time);
+    src.set_channel_layout(decoded_frame->channel_layout);
     src.init();
     JMedia::FilterConfig_abuffersink sink(&graph, "sink");
     sink.init();
@@ -37,9 +42,13 @@ int test_FilterGraph()
     graph.config();
     graph.set_src_sink(src, sink);
 
-
+    return 0;
 }
 
+static int resample_audio()
+{
+    return 0;
+}
 
 
 int main(int argc, char *argv[]) {
@@ -55,20 +64,6 @@ int main(int argc, char *argv[]) {
 
     JMedia::FilterGraph     graph;
 
-    JMedia::FilterConfig_abuffer src(&graph, "src");
-    src.set_sample_rate(44100);
-    src.set_sample_fmt(AV_SAMPLE_FMT_S16P);
-
-    AVRational time = {1, 96000};
-    src.set_time_base(time);
-    src.set_channel_layout(3);
-    src.init();
-    JMedia::FilterConfig_abuffersink sink(&graph, "sink");
-    sink.init();
-    src.link(sink);
-
-    graph.config();
-    graph.set_src_sink(src, sink);
 
 
 
@@ -98,6 +93,7 @@ int main(int argc, char *argv[]) {
             for (auto frame = frames.begin(); frame != frames.end(); frame++){
                 string pcm;
                 AVFrame *f = *frame;
+                create_resample_context(graph, f);
 
 
                 error = graph.src_add_frame(f);
