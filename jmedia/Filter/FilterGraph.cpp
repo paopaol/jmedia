@@ -14,7 +14,7 @@ extern "C"{
 
 
 namespace  JMedia{
-    FilterGraph::FilterGraph() throw(Error){
+    FilterGraph::FilterGraph(){
         m_filter_graph = avfilter_graph_alloc();
         if (!m_filter_graph){
             throw Error(AVERROR(ENOMEM));
@@ -34,6 +34,8 @@ namespace  JMedia{
 
     int FilterGraph::config() {
         int error = avfilter_graph_config(m_filter_graph, NULL);
+
+        return 0;
     }
 
 
@@ -63,6 +65,7 @@ namespace  JMedia{
 
         av_strerror(error, err_str, sizeof(err_str));
         m_error_string = err_str;
+        return 0;
     }
 
     std::string& FilterGraph::errors() const {

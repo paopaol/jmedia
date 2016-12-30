@@ -24,7 +24,7 @@ namespace JMedia {
         FilterConfig();
 
 
-        FilterConfig &link(FilterConfig &filter_config)throw(Error);
+        FilterConfig &link(FilterConfig &filter_config);
         AVFilterContext *getAVFilterContext();
     protected:
         int  set_error(int error_no);

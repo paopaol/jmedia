@@ -15,7 +15,7 @@ extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavutil/avstring.h>
 #include <libavutil/audio_fifo.h>
-#include <libavresample/avresample.h>
+#include <libswresample/swresample.h>
 }
 
 #include "LibAVInputFileAudio.h"

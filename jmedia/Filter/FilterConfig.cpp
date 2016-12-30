@@ -23,11 +23,12 @@ namespace JMedia{
         return 0;
     }
 
-    FilterConfig& FilterConfig::link(FilterConfig &filter_config) throw(Error){
+    FilterConfig& FilterConfig::link(FilterConfig &filter_config){
         int error = avfilter_link(m_filter_ctx, 0, filter_config.m_filter_ctx,0);
         if (error < 0){
             throw Error(error);
         }
+        return *this;
     }
 
     AVFilterContext* FilterConfig::getAVFilterContext() {

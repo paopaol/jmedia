@@ -20,7 +20,13 @@ extern "C" {
 namespace JMedia {
     class FilterConfig_abuffersink: public FilterConfig{
     public:
-        FilterConfig_abuffersink(FilterGraph *filter_graph, const std::string &name) throw(Error);
+        FilterConfig_abuffersink(FilterGraph *filter_graph, const std::string &name);
+        int set_channel_layout(uint64_t channel_layout);
+
+        int set_sample_fmt(AVSampleFormat sample_fmt);
+
+        int set_sample_rate(int sample_rate);
+
         int init();
     };
 }

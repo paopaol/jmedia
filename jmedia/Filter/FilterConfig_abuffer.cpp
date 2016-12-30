@@ -6,13 +6,14 @@
 
 extern "C"{
 #include <libavfilter/buffersrc.h>
+#include <libavutil/channel_layout.h>
 #include <libavutil/opt.h>
 }
 
 #include "FilterConfig.h"
 
 namespace JMedia {
-    FilterConfig_abuffer::FilterConfig_abuffer(FilterGraph *filter_graph, const std::string &name)throw(Error) {
+    FilterConfig_abuffer::FilterConfig_abuffer(FilterGraph *filter_graph, const std::string &name) {
         m_filter = avfilter_get_by_name("abuffer");
         m_filter_ctx = avfilter_graph_alloc_filter(filter_graph->getAVFilterGraph(), m_filter, name.c_str());
         if (!m_filter || !m_filter_ctx) {
@@ -20,7 +21,7 @@ namespace JMedia {
         }
     }
 
-    int FilterConfig_abuffer::set_channel_layout(int channel_layout) {
+    int FilterConfig_abuffer::set_channel_layout(uint64_t channel_layout) {
         char ch_layout[64] = {0};
 
         av_get_channel_layout_string(ch_layout, sizeof(ch_layout), 0, channel_layout);

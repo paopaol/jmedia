@@ -11,7 +11,7 @@
 using namespace std;
 
 extern "C" {
-#include <libavresample/avresample.h>
+#include <libswresample/swresample.h>
 #include <libavutil/audio_fifo.h>
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>

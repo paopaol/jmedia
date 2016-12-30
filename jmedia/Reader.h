@@ -20,11 +20,15 @@ extern "C"{
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/avutil.h>
-#include <libavresample/avresample.h>
-
-};
+}
 
 namespace JMedia {
+    struct Stream{
+        AVMediaType         media_type;
+        AVCodecContext      *codec_context;
+        Decoder             decoder;
+        int                 stream_index;
+    };
 
 
     struct Packet{
@@ -47,16 +51,14 @@ namespace JMedia {
         int open();
         int read_packet(Packet &pkt);
         AVMediaType media_type(Packet &pkt);
-        Decoder &find_decoder(AVMediaType media_type) throw(Error);
+        Decoder &find_decoder(AVMediaType media_type);
         string &error() const ;
         AVCodecContext  *CodecContext(AVMediaType media_type);
     private:
         string                                      m_filename;
         AVFormatContext                             *m_input_format_context;
 
-        typedef tuple<AVCodecContext *, Decoder, int> Stream;
-
-        map< AVMediaType , Stream>                  m_decoder;
+        std::list<Stream>                           m_streams;
         mutable string                              m_error;
     };
 };

@@ -2,10 +2,15 @@
 // Created by jz on 16-12-24.
 //
 
-
 #include <list>
-
 #include "Reader.h"
+#include <stdio.h>
+
+extern "C"{
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/avutil.h>
+}
 
 namespace JMedia {
 
@@ -16,8 +21,8 @@ namespace JMedia {
     }
 
     Reader::~Reader() {
-        for (auto decoder = m_decoder.begin(); decoder != m_decoder.end(); decoder++){
-            AVCodecContext  *codec_context = std::get<0>(decoder->second);
+        for (auto stream = m_streams.begin(); stream != m_streams.end(); stream++){
+            AVCodecContext  *codec_context = stream->codec_context;
             if (codec_context){
                 avcodec_free_context(&codec_context);
             }
@@ -33,21 +38,21 @@ namespace JMedia {
         char error_str[2048] = {0};
         AVCodec *input_codec = NULL;
 
-        //æ‰“å¼€æ–‡ä»¶æµ
+        //´ò¿ªÎÄ¼şÁ÷
         error_code = avformat_open_input(&m_input_format_context, m_filename.c_str(), NULL, NULL);
         if (error_code < 0) {
             av_strerror(error_code, error_str, sizeof(error_str));
             m_error = error_str;
             return error_code;
         }
-        //æŸ¥æ‰¾æµä¿¡æ¯
+        //²éÕÒÁ÷ĞÅÏ¢
         error_code = avformat_find_stream_info(m_input_format_context, NULL);
         if (error_code < 0) {
             av_strerror(error_code, error_str, sizeof(error_str));
             m_error = error_str;
             return error_code;
         }
-        for (int i = 0; i < m_input_format_context->nb_streams; i++) {
+        for (unsigned int i = 0; i < m_input_format_context->nb_streams; i++) {
             AVMediaType media_type = m_input_format_context->streams[i]->codecpar->codec_type;
             AVCodecID codec_id = m_input_format_context->streams[i]->codecpar->codec_id;
             AVCodecParameters *codecpar = m_input_format_context->streams[i]->codecpar;
@@ -58,21 +63,22 @@ namespace JMedia {
                 continue;
             }
 
-            //åˆ©ç”¨decoderåˆå§‹åŒ–codecä¸Šä¸‹æ–‡
+            //ÀûÓÃdecoder³õÊ¼»¯codecÉÏÏÂÎÄ
             AVCodecContext *codec_context = avcodec_alloc_context3(input_codec);
             if (!codec_context) {
-                snprintf(error_str, sizeof(error_str), "Could not allocate a decoding context");
+                char    error_str[1024] = {0};
+                av_strerror(AVERROR(ENOMEM), error_str, sizeof(error_str));
                 m_error = error_str;
-                return AVERROR_EXIT;
+                return AVERROR(ENOMEM);
             }
-            //å°†å‚æ•°å¡«å……åˆ°codecä¸Šä¸‹æ–‡
+            //½«²ÎÊıÌî³äµ½codecÉÏÏÂÎÄ
             error_code = avcodec_parameters_to_context(codec_context, codecpar);
             if (error_code < 0) {
                 av_strerror(error_code, error_str, sizeof(error_str));
                 m_error = error_str;
                 return error_code;
             }
-            //æ‰“å¼€codec
+            //´ò¿ªcodec
             error_code = avcodec_open2(codec_context, input_codec, NULL);
             if (error_code < 0) {
                 av_strerror(error_code, error_str, sizeof(error_str));
@@ -80,8 +86,8 @@ namespace JMedia {
                 return error_code;
             }
             Decoder decoder = Decoder(codec_context);
-            Stream stream = std::make_tuple(codec_context, decoder, i);
-            m_decoder.insert(std::map<AVMediaType, Stream>::value_type(media_type, stream));
+            Stream stream = {media_type,codec_context, decoder, stream_index};
+            m_streams.push_back(stream);
         }
         return 0;
     }
@@ -108,23 +114,20 @@ namespace JMedia {
     AVMediaType Reader::media_type(Packet &pkt) {
         int stream_index = pkt.m_pkt.stream_index;
 
-        for (auto it = m_decoder.begin(); it != m_decoder.end(); it++){
-            AVMediaType media_type = it->first;
-            Stream stream = it->second;
-
-            if (std::get<2>(stream) == stream_index){
-                return media_type;
+        for (auto it = m_streams.begin(); it != m_streams.end(); it++){
+            if (it->stream_index == stream_index){
+                return it->media_type;
             }
         }
 
         return AVMEDIA_TYPE_UNKNOWN;
     }
 
-    Decoder &Reader::find_decoder(AVMediaType media_type) throw(Error) {
-        auto it = m_decoder.find(media_type);
-        if (it != m_decoder.end()){
-            Stream stream = it->second;
-            return std::get<1>(stream);
+    Decoder &Reader::find_decoder(AVMediaType media_type) {
+        for (auto it = m_streams.begin(); it != m_streams.end(); it++){
+            if (it->media_type == media_type){
+                return it->decoder;
+            }
         }
         throw Error(AVERROR_DECODER_NOT_FOUND);
     }
@@ -138,15 +141,12 @@ namespace JMedia {
     }
 
     AVCodecContext *Reader::CodecContext(AVMediaType media_type) {
-        auto it = m_decoder.find(media_type);
-
-        if (it == m_decoder.end()){
-            return NULL;
+        for (auto it = m_streams.begin(); it != m_streams.end(); it++){
+            if (it->media_type == media_type){
+                return it->codec_context;
+            }
         }
-
-        AVCodecContext  *codec_context = std::get<0>(it->second);
-
-        return codec_context;
+        return NULL;
     }
 
 }

@@ -20,7 +20,7 @@ extern "C" {
 namespace JMedia{
     class FilterGraph {
     public:
-        FilterGraph()throw(Error);
+        FilterGraph();
         ~FilterGraph();
         AVFilterGraph *getAVFilterGraph();
         int config();

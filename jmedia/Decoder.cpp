@@ -3,7 +3,7 @@
 //
 
 #include "Decoder.h"
-
+#include <iterator>
 
 namespace JMedia {
     Decoder::Decoder(AVCodecContext *codec_context) {
@@ -56,10 +56,9 @@ namespace JMedia {
         return error;
     }
 
-    int Decoder::convert_to_pcm(AVFrame *decoded_frame, string &pcm) {
+    int Decoder::convert_to_pcm(AVFrame *decoded_frame, vector<uint8_t> &pcm) {
         int error = 0;
         char error_str[1024] = {0};
-        AVCodecContext  *codec_context = NULL;
         int data_size = 0;
 
         if (!decoded_frame){
@@ -67,13 +66,19 @@ namespace JMedia {
             goto __return;
         }
 
-        codec_context = m_codec_context;
-        pcm.resize(0, 0);
-        data_size = av_get_bytes_per_sample(codec_context->sample_fmt);
+        pcm.clear();
+        data_size = av_get_bytes_per_sample((AVSampleFormat)decoded_frame->format);
         for (int i = 0; i < decoded_frame->nb_samples; i++) {
-            for (int ch = 0; ch < codec_context->channels; ch++) {
-                pcm.append((char *) decoded_frame->data[ch] + data_size * i, data_size);
-            }
+            //if (av_sample_fmt_is_planar((AVSampleFormat)decoded_frame->format)){
+            //        uint8_t *data = decoded_frame->data[0] + data_size * i;
+            //        std::copy(data, data + data_size, std::back_inserter(pcm));
+            //}else{
+                //for (int ch = 0; ch < decoded_frame->channels; ch++) {
+            int ch = 0;
+                    uint8_t *data = decoded_frame->data[ch] + data_size * i;
+                    std::copy(data, data + data_size, std::back_inserter(pcm));
+                //}
+            //}
         }
         __return:
         if (error < 0) {

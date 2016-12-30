@@ -19,9 +19,9 @@ extern "C" {
 namespace JMedia {
     class FilterConfig_abuffer : public FilterConfig {
     public:
-        FilterConfig_abuffer(FilterGraph *filter_graph, const std::string &name)throw(Error);
+        FilterConfig_abuffer(FilterGraph *filter_graph, const std::string &name);
 
-        int set_channel_layout(int channel_layout);
+        int set_channel_layout(uint64_t channel_layout);
 
         int set_sample_fmt(AVSampleFormat sample_fmt);
 

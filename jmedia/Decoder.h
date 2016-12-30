@@ -30,7 +30,7 @@ namespace JMedia{
     public:
         Decoder(AVCodecContext *codec_context);
         int decode(AVPacket *pkt, list<AVFrame *> &decoded_frame_list);
-        int convert_to_pcm(AVFrame *frame, string &pcm);
+        int convert_to_pcm(AVFrame *frame, vector<uint8_t> &pcm);
         string &errors() const ;
 
     private:
