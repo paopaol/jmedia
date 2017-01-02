@@ -1,74 +1,41 @@
 //
-// Created by jz on 16-12-24.
+// Created by jz on 17-1-2.
 //
 
-#ifndef DECODE_AUDIO_JMEDIAREADER_H
-#define DECODE_AUDIO_JMEDIAREADER_H
+#ifndef DECODE_AUDIO_READER_H
+#define DECODE_AUDIO_READER_H
 
-#include <iostream>
-#include <exception>
 #include <string>
-#include <tuple>
-#include <map>
-#include "Decoder.h"
-#include "Error.h"
 
 using namespace std;
-using namespace JMedia;
 
-extern "C"{
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libavutil/avutil.h>
+#include "base.h"
+#include "Decoder.h"
+
+namespace JMedia{
+    class Reader{
+    public:
+        Reader();
+
+        string errors()const ;
+
+    public:
+        virtual ~Reader() = 0;
+
+        virtual int open() = 0;
+
+        virtual int read_packet(Packet &pkt) = 0;
+
+        virtual AVMediaType media_type(Packet &pkt) = 0;
+
+        virtual Decoder &find_decoder(AVMediaType media_type) = 0;
+
+        virtual AVCodecContext *getCodecContext(AVMediaType media_type) = 0;
+
+    private:
+        mutable string      m_error_string;
+        int                 m_error_code;
+    };
 }
 
-namespace JMedia {
-    struct Stream{
-        AVMediaType         media_type;
-        AVCodecContext      *codec_context;
-        Decoder             decoder;
-        int                 stream_index;
-    };
-
-
-    struct Packet{
-        Packet() {
-            av_init_packet(&m_pkt);
-            m_pkt.data = NULL;
-            m_pkt.size = 0;
-        }
-        ~Packet(){
-            av_packet_unref(&m_pkt);
-        }
-
-        AVPacket    m_pkt;
-    };
-
-    class Reader {
-    public:
-        Reader(const string &filename);
-        ~Reader();
-        int open();
-        int read_packet(Packet &pkt);
-        AVMediaType media_type(Packet &pkt);
-        Decoder &find_decoder(AVMediaType media_type);
-        string &error() const ;
-        AVCodecContext  *CodecContext(AVMediaType media_type);
-    private:
-        string                                      m_filename;
-        AVFormatContext                             *m_input_format_context;
-
-        std::list<Stream>                           m_streams;
-        mutable string                              m_error;
-    };
-};
-
-
-
-
-
-
-
-
-
-#endif //DECODE_AUDIO_JMEDIAREADER_H
+#endif //DECODE_AUDIO_READER_H

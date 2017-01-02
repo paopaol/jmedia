@@ -19,7 +19,7 @@ extern "C" {
 #include "libavformat/avformat.h"
 }
 
-#include "jmedia/Reader.h"
+#include "jmedia/FormatReader.h"
 #include "jmedia/Decoder.h"
 #include "jmedia/Filter/FilterGraph.h"
 #include "jmedia/Filter/FilterConfig.h"

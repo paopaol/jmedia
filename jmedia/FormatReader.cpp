@@ -3,7 +3,7 @@
 //
 
 #include <list>
-#include "Reader.h"
+#include "FormatReader.h"
 #include <stdio.h>
 
 extern "C"{
