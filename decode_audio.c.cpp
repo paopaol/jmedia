@@ -24,13 +24,14 @@ extern "C" {
 #include "jmedia/Filter/FilterGraph.h"
 #include "jmedia/Filter/FilterConfig.h"
 #include "jmedia/Filter/FilterConfig_abuffer.h"
+#include "jmedia/Filter/FilterConfig_aformat.h"
 #include "jmedia/Filter/FilterConfig_abuffersink.h"
 
 
 
 static void save_file(std::vector<uint8_t> pcm)
 {
-    char    *name = "1.pcm";
+    const char    *name = "1.pcm";
 
     FILE *f = fopen(name, "ab+");
 
@@ -52,14 +53,22 @@ static int create_resample_context(JMedia::FilterGraph &graph, AVFrame *decoded_
     src.set_channel_layout(decoded_frame->channel_layout);
     src.init();
 
-    int a = av_get_channel_layout_nb_channels(decoded_frame->channel_layout);
+
+    JMedia::FilterConfig_aformat aformat(&graph, "aformat");
+    av_get_default_channel_layout(decoded_frame->channels);
+    aformat.set_channel_layout_s(av_get_default_channel_layout(decoded_frame->channels));
+    aformat.set_sample_rate_s(to_sample_rate);
+    aformat.set_sample_fmt_s(to_sample_fmt);
+    aformat.init();
 
     JMedia::FilterConfig_abuffersink sink(&graph, "sink");
-    sink.set_channel_layout(decoded_frame->channel_layout);
-    sink.set_sample_rate(to_sample_rate);
-    sink.set_sample_fmt(to_sample_fmt);
     sink.init();
-    src.link(sink);
+
+    try{
+        src.link(aformat).link(sink);
+    }catch (JMedia::Error &e){
+        return -1;
+    }
 
     graph.config();
     graph.set_src_sink(src, sink);
@@ -70,8 +79,15 @@ static int create_resample_context(JMedia::FilterGraph &graph, AVFrame *decoded_
 
 
 
+
+
+
+
+
+
+
 int main(int argc, char *argv[]) {
-    JMedia::Reader      audio("inin.mkv");
+    JMedia::Reader      audio("in.mp3");
     int error;
     JMedia::FilterGraph     graph;
 
@@ -104,7 +120,7 @@ int main(int argc, char *argv[]) {
             for (auto frame = frames.begin(); frame != frames.end(); frame++){
                 AVFrame *f = *frame;
                 if (!inited){
-                    create_resample_context(graph, f, 44100, AV_SAMPLE_FMT_S16);
+                    create_resample_context(graph, f, 8000, AV_SAMPLE_FMT_S64P);
                     inited = true;
                 }
 

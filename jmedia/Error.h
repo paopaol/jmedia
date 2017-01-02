@@ -13,7 +13,7 @@ extern "C"{
 };
 
 namespace JMedia {
-    class Error : public std::exception {
+    class Error{
     public:
         Error(int error) {
             char err_str[1024] = {0};
@@ -27,6 +27,27 @@ namespace JMedia {
             return m_error_string.c_str();
         }
 
+    private:
+        int         m_error_code;
+        std::string m_error_string;
+    };
+
+    class error{
+    public:
+        error(){
+            m_error_code = 0;
+        }
+
+        const char *what() {
+            return m_error_string.c_str();
+        }
+    protected:
+        void set_error(int error){
+            char err_str[1024] = {0};
+
+            av_strerror(error, err_str, sizeof(err_str));
+            m_error_string = err_str;
+        }
     private:
         int         m_error_code;
         std::string m_error_string;

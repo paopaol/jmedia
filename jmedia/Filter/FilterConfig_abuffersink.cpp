@@ -19,26 +19,6 @@ namespace JMedia{
         }
     }
 
-    int FilterConfig_abuffersink::set_channel_layout(uint64_t channel_layout) {
-        int error = av_opt_set_bin(m_filter_ctx, "channel_layouts", (uint8_t *)&channel_layout, sizeof(channel_layout), AV_OPT_SEARCH_CHILDREN);
-        this->set_error(error);
-        return error;
-    }
-
-    int FilterConfig_abuffersink::set_sample_fmt(AVSampleFormat sample_fmt) {
-        int error = av_opt_set_bin(m_filter_ctx, "sample_fmts", (uint8_t *)&sample_fmt, sizeof(sample_fmt), AV_OPT_SEARCH_CHILDREN);
-        this->set_error(error);
-        return error;
-    }
-
-
-    int FilterConfig_abuffersink::set_sample_rate(int sample_rate) {
-        int error = av_opt_set_bin(m_filter_ctx, "sample_rates", (uint8_t *)&sample_rate, sizeof(sample_rate), AV_OPT_SEARCH_CHILDREN);
-        this->set_error(error);
-        return error;
-    }
-
-
     int FilterConfig_abuffersink::init() {
         int error =  avfilter_init_str(m_filter_ctx, NULL);
         this->set_error(error);

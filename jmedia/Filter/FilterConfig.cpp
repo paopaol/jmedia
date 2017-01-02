@@ -28,7 +28,7 @@ namespace JMedia{
         if (error < 0){
             throw Error(error);
         }
-        return *this;
+        return filter_config;
     }
 
     AVFilterContext* FilterConfig::getAVFilterContext() {

@@ -38,14 +38,14 @@ namespace JMedia {
         char error_str[2048] = {0};
         AVCodec *input_codec = NULL;
 
-        //打开文件流
+        //沤貌驴陋脦脛艗镁脕梅
         error_code = avformat_open_input(&m_input_format_context, m_filename.c_str(), NULL, NULL);
         if (error_code < 0) {
             av_strerror(error_code, error_str, sizeof(error_str));
             m_error = error_str;
             return error_code;
         }
-        //查找流信息
+        //虏茅脮脪脕梅脨脜脧垄
         error_code = avformat_find_stream_info(m_input_format_context, NULL);
         if (error_code < 0) {
             av_strerror(error_code, error_str, sizeof(error_str));
@@ -63,7 +63,7 @@ namespace JMedia {
                 continue;
             }
 
-            //利用decoder初始化codec上下文
+            //脌没脫脙decoder鲁玫脢艗禄炉codec脡脧脧脗脦脛
             AVCodecContext *codec_context = avcodec_alloc_context3(input_codec);
             if (!codec_context) {
                 char    error_str[1024] = {0};
@@ -71,14 +71,14 @@ namespace JMedia {
                 m_error = error_str;
                 return AVERROR(ENOMEM);
             }
-            //将参数填充到codec上下文
+            //艙芦虏脦脢媒脤卯鲁盲碌艙codec脡脧脧脗脦脛
             error_code = avcodec_parameters_to_context(codec_context, codecpar);
             if (error_code < 0) {
                 av_strerror(error_code, error_str, sizeof(error_str));
                 m_error = error_str;
                 return error_code;
             }
-            //打开codec
+            //沤貌驴陋codec
             error_code = avcodec_open2(codec_context, input_codec, NULL);
             if (error_code < 0) {
                 av_strerror(error_code, error_str, sizeof(error_str));
