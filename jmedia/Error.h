@@ -41,12 +41,14 @@ namespace JMedia {
         const char *what() {
             return m_error_string.c_str();
         }
-    protected:
         void set_error(int error){
             char err_str[1024] = {0};
 
             av_strerror(error, err_str, sizeof(err_str));
             m_error_string = err_str;
+        }
+        int error_code(){
+            return m_error_code;
         }
     private:
         int         m_error_code;

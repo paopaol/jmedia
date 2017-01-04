@@ -12,6 +12,6 @@ set(SOURCE_FILES
         jmedia/FormatReader.h
         jmedia/Decoder.cpp
         jmedia/Decoder.h
-        jmedia/Error.h jmedia/Filter/FilterGraph.cpp jmedia/Filter/FilterGraph.h jmedia/Filter/FilterConfig.h jmedia/Filter/FilterConfig_abuffer.cpp jmedia/Filter/FilterConfig_abuffer.h jmedia/Filter/FilterConfig_abuffersink.cpp jmedia/Filter/FilterConfig_abuffersink.h jmedia/Filter/FilterConfig.cpp jmedia/Filter/FilterConfig_aformat.cpp jmedia/Filter/FilterConfig_aformat.h jmedia/AudioReader.cpp jmedia/AudioReader.h jmedia/base.h jmedia/Reader.h)
+        jmedia/Error.h jmedia/Filter/FilterGraph.cpp jmedia/Filter/FilterGraph.h jmedia/Filter/FilterConfig.h jmedia/Filter/FilterConfig_abuffer.cpp jmedia/Filter/FilterConfig_abuffer.h jmedia/Filter/FilterConfig_abuffersink.cpp jmedia/Filter/FilterConfig_abuffersink.h jmedia/Filter/FilterConfig.cpp jmedia/Filter/FilterConfig_aformat.cpp jmedia/Filter/FilterConfig_aformat.h jmedia/AudioReader.cpp jmedia/AudioReader.h jmedia/base.h jmedia/Reader.h jmedia/tools/Resample.cpp jmedia/tools/Resample.h)
 add_executable(decode_audio ${SOURCE_FILES})
 target_link_libraries(decode_audio avformat avdevice avfilter avcodec  avutil swscale swresample pthread z dl)
