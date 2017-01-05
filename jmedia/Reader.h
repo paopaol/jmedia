@@ -17,7 +17,9 @@ namespace JMedia{
     public:
         Reader();
 
-        string errors()const ;
+        const char *errors()const ;
+
+        void set_error(int error_code);
 
     public:
         virtual ~Reader() = 0;

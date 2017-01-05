@@ -13,6 +13,7 @@
 #include "Decoder.h"
 #include "Error.h"
 #include "base.h"
+#include "Reader.h"
 
 using namespace std;
 using namespace JMedia;
@@ -22,6 +23,7 @@ extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavutil/avutil.h>
 }
+
 
 namespace JMedia {
     struct Stream{
@@ -34,22 +36,28 @@ namespace JMedia {
 
 
 
-    class Reader {
+    class FormatReader:public Reader{
     public:
-        Reader(const string &filename);
-        ~Reader();
+        FormatReader(const string &filename);
+
+        ~FormatReader();
+
         int open();
+
         int read_packet(Packet &pkt);
+
         AVMediaType media_type(Packet &pkt);
+
         Decoder &find_decoder(AVMediaType media_type);
-        string &error() const ;
-        AVCodecContext  *CodecContext(AVMediaType media_type);
+
+        AVCodecContext  *getCodecContext(AVMediaType media_type);
+
     private:
         string                                      m_filename;
+
         AVFormatContext                             *m_input_format_context;
 
         std::list<Stream>                           m_streams;
-        mutable string                              m_error;
     };
 };
 
