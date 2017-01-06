@@ -11,6 +11,7 @@ using namespace std;
 
 #include "base.h"
 #include "Decoder.h"
+#include "Error.h"
 
 namespace JMedia{
     class Reader{
@@ -34,9 +35,8 @@ namespace JMedia{
 
         virtual AVCodecContext *getCodecContext(AVMediaType media_type) = 0;
 
-    private:
-        mutable string      m_error_string;
-        int                 m_error_code;
+    protected:
+        error               m_error;
     };
 }
 

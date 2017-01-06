@@ -3,6 +3,7 @@
 //
 
 #include <list>
+#include <string>
 
 #include "FormatReader.h"
 #include <stdio.h>
@@ -15,13 +16,13 @@ extern "C"{
 
 namespace JMedia {
 
-    FormatReader::Reader(const std::string &filename)
+    FormatReader::FormatReader(const std::string &filename)
     {
         m_filename = filename;
         m_input_format_context = NULL;
     }
 
-    FormatReader::~Reader() {
+    FormatReader::~FormatReader() {
         for (auto stream = m_streams.begin(); stream != m_streams.end(); stream++){
             AVCodecContext  *codec_context = stream->codec_context;
             if (codec_context){
@@ -38,17 +39,14 @@ namespace JMedia {
         int error_code;
         AVCodec *input_codec = NULL;
 
-        //Žò¿ªÎÄŒþÁ÷
         error_code = avformat_open_input(&m_input_format_context, m_filename.c_str(), NULL, NULL);
         if (error_code < 0) {
-            av_strerror(error_code, error_str, sizeof(error_str));
-            this->set_error(error_code);
+            m_error.set_error(error_code); 
             return error_code;
         }
-        //²éÕÒÁ÷ÐÅÏ¢
         error_code = avformat_find_stream_info(m_input_format_context, NULL);
         if (error_code < 0) {
-            this->set_error(error_code);
+            m_error.set_error(error_code); 
             return error_code;
         }
         for (unsigned int i = 0; i < m_input_format_context->nb_streams; i++) {
@@ -62,22 +60,19 @@ namespace JMedia {
                 continue;
             }
 
-            //ÀûÓÃdecoder³õÊŒ»¯codecÉÏÏÂÎÄ
             AVCodecContext *codec_context = avcodec_alloc_context3(input_codec);
             if (!codec_context) {
-                this->set_error(AVERROR(ENOMEM));
+                m_error.set_error(AVERROR(ENOMEM)); 
                 return AVERROR(ENOMEM);
             }
-            //œ«²ÎÊýÌî³äµœcodecÉÏÏÂÎÄ
             error_code = avcodec_parameters_to_context(codec_context, codecpar);
             if (error_code < 0) {
-                this->set_error(error_code);
+                m_error.set_error(error_code); 
                 return error_code;
             }
-            //Žò¿ªcodec
             error_code = avcodec_open2(codec_context, input_codec, NULL);
             if (error_code < 0) {
-                this->set_error(error_code);
+                m_error.set_error(error_code); 
                 return error_code;
             }
             Decoder decoder = Decoder(codec_context);
@@ -92,6 +87,11 @@ namespace JMedia {
         int error = 0;
         char error_str[1024] = {0};
 
+        if (m_input_format_context == nullptr){
+            error = AVERROR_INVALIDDATA;
+            goto __return;
+        }
+
         error = av_read_frame(m_input_format_context, &pkt.m_pkt);
         if (error < 0) {
             goto __return;
@@ -99,8 +99,7 @@ namespace JMedia {
 
         __return:
         if (error < 0) {
-            av_strerror(error, error_str, sizeof(error_str));
-            m_error = error_str;
+            m_error.set_error(error); 
         }
         return error;
     }

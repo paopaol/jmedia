@@ -24,13 +24,16 @@ namespace JMedia {
     };
 
 
-    class Resample {
+    class Resampler {
     public:
-        Resample();
+        Resampler();
+        ~Resampler();
 
-        int init(ResampleConfig &config);
+        int init_once(ResampleConfig &config);
 
         int convert(const uint8_t **src_data, int src_nb_samples, uint8_t **dst_data, int *dst_linesize);
+
+        int get_converted(uint8_t *&data, int &size);
 
     private:
         SwrContext                          *m_swr_context;
