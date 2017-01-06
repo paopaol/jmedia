@@ -127,14 +127,7 @@ namespace JMedia {
     }
 
 
-
-
-
-    string &Reader::error() const {
-        return m_error;
-    }
-
-    AVCodecContext *Reader::CodecContext(AVMediaType media_type) {
+    AVCodecContext *FormatReader::getCodecContext(AVMediaType media_type) {
         for (auto it = m_streams.begin(); it != m_streams.end(); it++){
             if (it->media_type == media_type){
                 return it->codec_context;

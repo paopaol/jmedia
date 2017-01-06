@@ -2,12 +2,17 @@
 // Created by jz on 17-1-4.
 //
 
-#include "Resample.h"
+#include "Resampler.h"
+
+extern "C"{
+#include <libavutil/opt.h>
+}
 
 namespace JMedia{
     Resampler::Resampler()
     {
         m_swr_context = swr_alloc();
+        m_dst_data = nullptr;
     }
 
     Resampler::~Resampler()
@@ -35,12 +40,12 @@ namespace JMedia{
             return 0;
         }
 
-        av_opt_set_int(swr_ctx, "in_channel_layout",    config.src_ch_layout, 0);
-        av_opt_set_int(swr_ctx, "in_sample_rate",       config.src_rate, 0);
-        av_opt_set_sample_fmt(swr_ctx, "in_sample_fmt", config.src_sample_fmt, 0);
-        av_opt_set_int(swr_ctx, "out_channel_layout",    config.dst_ch_layout, 0);
-        av_opt_set_int(swr_ctx, "out_sample_rate",       config.dst_rate, 0);
-        av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt", config.dst_sample_fmt, 0);
+        av_opt_set_int(m_swr_context, "in_channel_layout",    config.src_ch_layout, 0);
+        av_opt_set_int(m_swr_context, "in_sample_rate",       config.src_rate, 0);
+        av_opt_set_sample_fmt(m_swr_context, "in_sample_fmt", config.src_sample_fmt, 0);
+        av_opt_set_int(m_swr_context, "out_channel_layout",    config.dst_ch_layout, 0);
+        av_opt_set_int(m_swr_context, "out_sample_rate",       config.dst_rate, 0);
+        av_opt_set_sample_fmt(m_swr_context, "out_sample_fmt", config.dst_sample_fmt, 0);
         m_resample_config = config;
 
         if ((error = swr_init(m_swr_context)) < 0) {
@@ -103,9 +108,9 @@ namespace JMedia{
         return 0;
     }
 
-    Resampler::get_converted(uint8_t *&data, int &size)
+    int Resampler::get_converted(uint8_t *&data, int &size)
     {
         data = m_dst_data[0];
-        size = m_dst_linesize[0];
+        size = m_dst_linesize;
     }
 }

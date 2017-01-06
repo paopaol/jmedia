@@ -16,15 +16,12 @@ using namespace std;
 namespace JMedia{
     class Reader{
     public:
-        Reader();
+        const char *errors(){
+            return m_error.what();
+        }
 
-        const char *errors()const ;
-
-        void set_error(int error_code);
 
     public:
-        virtual ~Reader() = 0;
-
         virtual int open() = 0;
 
         virtual int read_packet(Packet &pkt) = 0;
