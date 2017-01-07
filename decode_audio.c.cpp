@@ -30,19 +30,20 @@ extern "C" {
 
 
 
-static void save_file(std::vector<uint8_t> pcm, int channels, int channel_layout, int fmt, int sample_rate)
+static void save_file(const string &fname, std::vector<uint8_t> pcm, int channels, int channel_layout, int fmt, int sample_rate)
 {
     char            name[1024] = {0};
     char            channel_layout_name[64] = {0};
 
     av_get_channel_layout_string(channel_layout_name, sizeof(channel_layout_name), channels, channel_layout);
 
-    snprintf(name, sizeof(name), "%s_%d_%d_%s_%d.pcm",
+    snprintf(name, sizeof(name), "%s_%d_%d_%s_%d_%s.pcm",
              channel_layout_name,
              channels,
              sample_rate,
              av_get_sample_fmt_name((AVSampleFormat)fmt),
-             av_get_bytes_per_sample((AVSampleFormat)fmt));
+             av_get_bytes_per_sample((AVSampleFormat)fmt),
+             fname.c_str());
 
     FILE *f = fopen(name, "ab+");
 
@@ -98,8 +99,9 @@ static int create_resample_context(JMedia::FilterGraph &graph, AVFrame *decoded_
 
 
 int main(int argc, char *argv[]) {
-//    JMedia::FormatReader      audio(argv[1]);
-    JMedia::FormatReader      audio("in.mp3");
+//    string filename = "in.mp3";
+    string filename = argv[1];
+    JMedia::FormatReader      audio(filename);
     int error;
     JMedia::Resampler         resampler;
 
@@ -133,12 +135,12 @@ int main(int argc, char *argv[]) {
             }
             for (auto frame = frames.begin(); frame != frames.end(); frame++){
                 AVFrame *f = *frame;
-                std::vector<uint8_t> pcm;
+
                 JMedia::ResampleConfig config;
 
-                config.dst_ch_layout = AV_CH_LAYOUT_MONO;
-                config.dst_rate = 32000;
-                config.dst_sample_fmt = AV_SAMPLE_FMT_FLT;
+                config.dst_ch_layout = AV_CH_LAYOUT_6POINT1;
+                config.dst_rate = 96000;
+                config.dst_sample_fmt = AV_SAMPLE_FMT_U8;
 
                 config.src_ch_layout = f->channel_layout;
                 config.src_rate = f->sample_rate;
@@ -152,22 +154,17 @@ int main(int argc, char *argv[]) {
                     return 1;
                 }
 
+                std::vector<uint8_t> pcm_new;
                 uint8_t     *data;
                 int         size;
 
                 resampler.get_converted(data, size);
 
-                std::copy(data, data + size, std::back_inserter(pcm));
+                std::copy(data, data + size, std::back_inserter(pcm_new));
 
 
-                save_file(pcm, av_get_channel_layout_nb_channels(config.dst_ch_layout), config.dst_ch_layout, config.dst_sample_fmt, config.dst_rate);
+                save_file(filename, pcm_new, av_get_channel_layout_nb_channels((uint64_t)config.dst_ch_layout), config.dst_ch_layout, config.dst_sample_fmt, config.dst_rate);
 
-//                error = decoder.convert_to_pcm(f, pcm);
-//                if (error < 0) {
-//                    puts(decoder.errors().c_str());
-//                    return 1;
-//                }
-//                save_file(pcm, f->channels, f->channel_layout, f->format, f->sample_rate);
             }
 
             while(!frames.empty()){
