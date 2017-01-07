@@ -2,6 +2,8 @@
 // Created by jz on 17-1-4.
 //
 
+#include <errno.h>
+
 #include "Resampler.h"
 
 extern "C"{
@@ -18,7 +20,8 @@ namespace JMedia{
     Resampler::~Resampler()
     {
         if (m_dst_data){
-            av_free(&m_dst_data[0]);
+            av_freep(&m_dst_data[0]);
+            av_freep(&m_dst_data);
         }
 
 
@@ -83,7 +86,7 @@ namespace JMedia{
                                     m_resample_config.dst_rate, m_resample_config.src_rate,
                                     AV_ROUND_UP);
         if (dst_nb_samples > max_dst_nb_samples){
-            av_free(&m_dst_data[0]);
+            av_freep(&m_dst_data[0]);
             error = av_samples_alloc(m_dst_data, &m_dst_linesize, 
                                 dst_nb_channels, dst_nb_samples, m_resample_config.dst_sample_fmt,
                                 1);
@@ -94,7 +97,7 @@ namespace JMedia{
             max_dst_nb_samples = dst_nb_samples;
         }
 
-        error = swr_convert(m_swr_context, m_dst_data, dst_nb_channels, src_data, src_nb_samples);
+        error = swr_convert(m_swr_context, m_dst_data, dst_nb_samples, src_data, src_nb_samples);
         if (error < 0){
             m_error.set_error(error);
             return error;
