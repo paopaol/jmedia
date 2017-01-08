@@ -28,12 +28,24 @@ extern "C" {
 #include "jmedia/Filter/FilterConfig_abuffersink.h"
 #include "jmedia/tools/Resampler.h"
 
+static void string_replace(string &s1,const string &s2,const string &s3)
+{
+    string::size_type pos=0;
+    string::size_type a=s2.size();
+    string::size_type b=s3.size();
+    while((pos=s1.find(s2,pos))!=string::npos)
+    {
+        s1.replace(pos,a,s3);
+        pos+=b;
+    }
+}
 
-
-static void save_file(const string &fname, std::vector<uint8_t> pcm, int channels, int channel_layout, int fmt, int sample_rate)
+static void save_file(string &fname, std::vector<uint8_t> pcm, int channels, int channel_layout, int fmt, int sample_rate)
 {
     char            name[1024] = {0};
     char            channel_layout_name[64] = {0};
+
+    string_replace(fname, "/", "_");
 
     av_get_channel_layout_string(channel_layout_name, sizeof(channel_layout_name), channels, channel_layout);
 
@@ -99,13 +111,14 @@ static int create_resample_context(JMedia::FilterGraph &graph, AVFrame *decoded_
 
 
 int main(int argc, char *argv[]) {
-//    string filename = "in.mp3";
+//    string filename = "rtmp://live.hkstv.hk.lxdns.com/live/hks";
     string filename = argv[1];
     JMedia::FormatReader      audio(filename);
     int error;
     JMedia::Resampler         resampler;
 
     av_register_all();
+    avformat_network_init();
 
     error = audio.open();
     if (error < 0) {
