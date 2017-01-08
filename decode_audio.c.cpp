@@ -132,8 +132,8 @@ static int create_resample_context(JMedia::FilterGraph &graph, AVFrame *decoded_
 
 int main(int argc, char *argv[]) {
 //    string filename = "rtmp://live.hkstv.hk.lxdns.com/live/hks";
-    string filename = argv[1];
-//    string filename = "in.mp3";
+//    string filename = argv[1];
+    string filename = "2.mov";
     JMedia::FormatReader      audio(filename);
     int error;
     JMedia::Resampler         resampler;
@@ -172,31 +172,32 @@ int main(int argc, char *argv[]) {
                 for (auto frame = frames.begin(); frame != frames.end(); frame++){
                     AVFrame *f = *frame;
 
-                    JMedia::ResampleConfig config;
-
-                    config.dst_ch_layout = AV_CH_LAYOUT_6POINT1;
-                    config.dst_rate = 96000;
-                    config.dst_sample_fmt = AV_SAMPLE_FMT_U8;
-
-                    config.src_ch_layout = f->channel_layout;
-                    config.src_rate = f->sample_rate;
-                    config.src_sample_fmt = (AVSampleFormat)f->format;
-
-                    resampler.init_once(config);
-
-                    error = resampler.convert((const uint8_t **)f->extended_data, f->nb_samples);
-                    if (error < 0){
-                        printf("error\n");
-                        return 1;
-                    }
-
+//                    JMedia::ResampleConfig config;
+//
+//                    config.dst_ch_layout = AV_CH_LAYOUT_6POINT1;
+//                    config.dst_rate = 96000;
+//                    config.dst_sample_fmt = AV_SAMPLE_FMT_U8;
+//
+//                    config.src_ch_layout = f->channel_layout;
+//                    config.src_rate = f->sample_rate;
+//                    config.src_sample_fmt = (AVSampleFormat)f->format;
+//
+//                    resampler.init_once(config);
+//
+//                    error = resampler.convert((const uint8_t **)f->extended_data, f->nb_samples);
+//                    if (error < 0){
+//                        printf("error\n");
+//                        return 1;
+//                    }
+//
                     std::vector<uint8_t> pcm_new;
-                    uint8_t     *data;
-                    int         size;
-
-                    resampler.get_converted(data, size);
-                    std::copy(data, data + size, std::back_inserter(pcm_new));
-                    save_file(filename, pcm_new, av_get_channel_layout_nb_channels((uint64_t)config.dst_ch_layout), config.dst_ch_layout, config.dst_sample_fmt, config.dst_rate);
+//                    uint8_t     *data;
+//                    int         size;
+//
+//                    resampler.get_converted(data, size);
+//                    std::copy(data, data + size, std::back_inserter(pcm_new));
+                    decoder.convert_to_pcm(f, pcm_new);
+                    save_file(filename, pcm_new, f->channels, f->channel_layout, f->format, f->sample_rate);
                 }
                 break;
             case AVMEDIA_TYPE_VIDEO:

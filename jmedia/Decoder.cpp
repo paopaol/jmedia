@@ -71,11 +71,11 @@ namespace JMedia {
         for (int i = 0; i < decoded_frame->nb_samples; i++) {
             if (av_sample_fmt_is_planar((AVSampleFormat)decoded_frame->format)){
                 for (int ch = 0; ch < decoded_frame->channels; ch++) {
-                    uint8_t *data = decoded_frame->data[ch] + data_size * i;
+                    uint8_t *data = decoded_frame->extended_data[ch] + data_size * i;
                     std::copy(data, data + data_size, std::back_inserter(pcm));
                 }
             }else{
-                uint8_t *data = decoded_frame->data[0] + data_size * i;
+                uint8_t *data = decoded_frame->extended_data[0] + data_size * i;
                 std::copy(data, data + data_size, std::back_inserter(pcm));
             }
         }
