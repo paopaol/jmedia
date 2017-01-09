@@ -2,6 +2,7 @@
 // Created by jz on 16-12-21.
 //
 
+#include <stdio.h>
 
 #ifdef WIN32
 #include <io.h>
@@ -27,6 +28,7 @@ extern "C" {
 #include "jmedia/Filter/FilterConfig_aformat.h"
 #include "jmedia/Filter/FilterConfig_abuffersink.h"
 #include "jmedia/tools/Resampler.h"
+#include "jmedia/tools/Scaler.h"
 
 static void string_replace(string &s1,const string &s2,const string &s3)
 {
@@ -40,6 +42,25 @@ static void string_replace(string &s1,const string &s2,const string &s3)
     }
 }
 
+static int save_video_file_rgb24(string &fname, uint8_t *data, int size, AVFrame *f)
+{
+    FILE            *fp = NULL;
+    string          file = fname;
+    char            buf[1024] = {0};
+    static int      index = 0;
+
+    string_replace(file, "/", "_");
+    sprintf(buf, "%s_%d.pgm", file.c_str(), index);
+
+    fp = fopen(buf,"ab+");
+    fprintf(fp, "P5\n%d %d\n%d\n", f->width, f->height, 255);
+    fwrite(data, 1, size, fp);
+    fclose(fp);
+    index++;
+
+    return 0;
+}
+
 static void save_video_file(string &fname, AVFrame *f)
 {
     FILE            *fp = NULL;
@@ -48,7 +69,7 @@ static void save_video_file(string &fname, AVFrame *f)
     static int      index = 0;
 
     string_replace(file, "/", "_");
-    sprintf(buf, "%s_%d.pmg", file.c_str(), index);
+    sprintf(buf, "%s_%d.pgm", file.c_str(), index);
 
     fp = fopen(buf,"ab+");
     fprintf(fp, "P5\n%d %d\n%d\n", f->width, f->height, 255);
@@ -59,7 +80,9 @@ static void save_video_file(string &fname, AVFrame *f)
     index++;
 }
 
-static void save_file(string &fname, std::vector<uint8_t> pcm, int channels, int channel_layout, int fmt, int sample_rate)
+
+
+static void save_file(string &fname, std::vector<uint8_t> pcm, int channels, uint64_t channel_layout, int fmt, int sample_rate)
 {
     char            name[1024] = {0};
     char            channel_layout_name[64] = {0};
@@ -69,7 +92,7 @@ static void save_file(string &fname, std::vector<uint8_t> pcm, int channels, int
 
     av_get_channel_layout_string(channel_layout_name, sizeof(channel_layout_name), channels, channel_layout);
 
-    snprintf(name, sizeof(name), "%s_%d_%d_%s_%d_%s.pcm",
+    sprintf(name, "%s_%d_%d_%s_%d_%s.pcm",
              channel_layout_name,
              channels,
              sample_rate,
@@ -111,6 +134,7 @@ static int create_resample_context(JMedia::FilterGraph &graph, AVFrame *decoded_
     try{
         src.link(aformat).link(sink);
     }catch (JMedia::Error &e){
+        puts(e.what());
         return -1;
     }
 
@@ -133,10 +157,11 @@ static int create_resample_context(JMedia::FilterGraph &graph, AVFrame *decoded_
 int main(int argc, char *argv[]) {
 //    string filename = "rtmp://live.hkstv.hk.lxdns.com/live/hks";
 //    string filename = argv[1];
-    string filename = "2.mov";
-    JMedia::FormatReader      audio(filename);
+    string filename = "dll.mkv";
+    JMedia::FormatReader        audio(filename);
     int error;
-    JMedia::Resampler         resampler;
+    JMedia::Resampler           resampler;
+    JMedia::Scaler              scaler;
 
     av_register_all();
     avformat_network_init();
@@ -208,7 +233,38 @@ int main(int argc, char *argv[]) {
                 }
                 for (auto frame = frames.begin(); frame != frames.end(); frame++){
                     AVFrame *f = *frame;
-                    save_video_file(filename, f);
+                    JMedia::ScalerConfig    scaler_config;
+
+                    scaler_config.src_width = f->width;
+                    scaler_config.src_height = f->height;
+                    scaler_config.src_pix_fmt = (AVPixelFormat)f->format;
+
+                    scaler_config.dst_width = f->width;
+                    scaler_config.dst_height = f->height;
+                    scaler_config.dst_pix_fmt = AV_PIX_FMT_BGR24;
+
+                    error = scaler.init_once(scaler_config);
+                    if (error < 0){
+                        printf("s error\n");
+                        return 1;
+                    }
+
+                    error = scaler.convert((const uint8_t **)f->extended_data, f->linesize);
+                    if (error < 0){
+                        printf("sc error\n");
+                        return 2;
+                    }
+
+
+
+                    uint8_t     *data;
+                    int         size;
+
+                    scaler.get_converted(data, size);
+
+
+                    save_video_file_rgb24(filename, data, size, f);
+                    //save_video_file(filename, f);
                 }
                 break;
             default:
