@@ -30,7 +30,7 @@ namespace JMedia{
         }
     }
 
-    int Resampler::init_once(ResampleConfig& config)
+    int Resampler::init_once(ResamplerConfig& config)
     {
         int error = 0;
 
@@ -73,7 +73,7 @@ namespace JMedia{
         int max_dst_nb_samples = 0;
         int dst_nb_samples = 0;
 
-        max_dst_nb_samples = dst_nb_samples = av_rescale_rnd(src_nb_samples, m_resample_config.dst_rate, m_resample_config.src_rate, AV_ROUND_UP);
+        max_dst_nb_samples = dst_nb_samples = (int)av_rescale_rnd(src_nb_samples, m_resample_config.dst_rate, m_resample_config.src_rate, AV_ROUND_UP);
 
         if (m_dst_data == nullptr){
             int ret = av_samples_alloc_array_and_samples(&m_dst_data, &m_dst_linesize, dst_nb_channels, dst_nb_samples, m_resample_config.dst_sample_fmt, 0);
@@ -82,7 +82,7 @@ namespace JMedia{
                 return ret;
             }
         }
-        dst_nb_samples = av_rescale_rnd(swr_get_delay(m_swr_context, m_resample_config.src_rate) + src_nb_samples, 
+        dst_nb_samples = (int)av_rescale_rnd(swr_get_delay(m_swr_context, m_resample_config.src_rate) + src_nb_samples, 
                                     m_resample_config.dst_rate, m_resample_config.src_rate,
                                     AV_ROUND_UP);
         if (dst_nb_samples > max_dst_nb_samples){
@@ -115,5 +115,6 @@ namespace JMedia{
     {
         data = m_dst_data[0];
         size = m_dst_linesize;
+        return 0;
     }
 }

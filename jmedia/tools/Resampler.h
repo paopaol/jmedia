@@ -13,7 +13,7 @@ extern "C"{
 #include "../Error.h"
 
 namespace JMedia {
-    struct ResampleConfig{
+    struct ResamplerConfig{
         int64_t             src_ch_layout;
         int                 src_rate;
         AVSampleFormat      src_sample_fmt;
@@ -27,9 +27,10 @@ namespace JMedia {
     class Resampler {
     public:
         Resampler();
+
         ~Resampler();
 
-        int init_once(ResampleConfig &config);
+        int init_once(ResamplerConfig &config);
 
         int convert(const uint8_t **src_data, int src_nb_samples);
 
@@ -37,9 +38,13 @@ namespace JMedia {
 
     private:
         SwrContext                          *m_swr_context;
-        ResampleConfig                      m_resample_config;
+
+        ResamplerConfig                     m_resample_config;
+
         uint8_t                             **m_dst_data;
+
         int                                 m_dst_linesize;
+
         error                               m_error;
     };
 }
