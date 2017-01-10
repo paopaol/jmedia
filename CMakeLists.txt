@@ -26,6 +26,6 @@ set(SOURCE_FILES
         jmedia/base.h
         jmedia/Reader.h
         jmedia/tools/Resampler.cpp
-        jmedia/tools/Resampler.h)
+        jmedia/tools/Resampler.h jmedia/FormatWriter.cpp jmedia/FormatWriter.h)
 add_executable(decode_audio ${SOURCE_FILES})
 target_link_libraries(decode_audio avformat avdevice avfilter avcodec  avutil swscale swresample pthread z dl)
