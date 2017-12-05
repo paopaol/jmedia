@@ -11,15 +11,17 @@ extern "C"{
 
 namespace JMedia{
     struct Packet{
-        Packet() {
+		void init() {
             av_init_packet(&m_pkt);
             m_pkt.data = NULL;
             m_pkt.size = 0;
-        }
-        ~Packet(){
+		}
+		void unref() {
             av_packet_unref(&m_pkt);
-        }
-
+		}
+		~Packet() {
+			unref();
+		}
         AVPacket    m_pkt;
     };
 }
