@@ -17,10 +17,11 @@ link_directories(thrd/ffmpeg/lib)
 
 
 #google
-set(gtest_force_shared_crt ON FORCE)
-set(INSTALL_GTEST OFF FORCE)
-set(INSTALL_GMOCK OFF FORCE)
+set(gtest_force_shared_crt ON CACHE BOOL "")
+set(INSTALL_GTEST  OFF CACHE BOOL "")
+set(INSTALL_GMOCK  OFF CACHE BOOL "")
 add_subdirectory(thrd/googletest)
+
 set_target_properties(
 	gtest gtest_main gmock gmock_main 
 	PROPERTIES FOLDER "google")
