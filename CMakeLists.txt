@@ -11,8 +11,21 @@ set(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE})
 enable_testing()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+#ffmpeg
 include_directories(thrd/ffmpeg/include)
 link_directories(thrd/ffmpeg/lib)
+
+
+#google
+set(gtest_force_shared_crt ON)
+set(INSTALL_GTEST OFF)
+set(INSTALL_GMOCK OFF)
+add_subdirectory(thrd/googletest)
+set_target_properties(
+	gtest gtest_main gmock gmock_main 
+	PROPERTIES FOLDER "google")
+include_directories(thrd/googletest/include)
+
 
 include_directories(
 	jmedia
