@@ -8,18 +8,32 @@
 #include <string>
 #include <map>
 
-using namespace std;
 
 #include "base.h"
 #include "Decoder.h"
 #include "Error.h"
 
 namespace JMedia{
+	struct Duration {
+		int					Hours;
+		int					Minutes;
+		int					Seconds;
+		int					Us;
+
+		std::string String() {
+			char buf[64] = {0};
+			snprintf(buf, sizeof(buf), "%02d:%02d:%02d.%02d", Hours, Minutes, Seconds, (100 * Us) / AV_TIME_BASE);
+			return std::string(buf);
+		}
+	};
+
     class Reader{
     public:
         virtual int open() = 0;
         virtual int close() = 0;
-		virtual map<string, string> metadata() = 0;
+		virtual std::map<std::string, std::string> metadata() = 0;
+		virtual Duration duration() = 0;
+		virtual Duration start_time() = 0;
         virtual int read_packet(Packet &pkt) = 0;
         virtual AVMediaType media_type(Packet &pkt) = 0;
         virtual int find_decoder(AVMediaType media_type, Decoder &decoder) = 0;

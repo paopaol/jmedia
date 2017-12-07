@@ -31,7 +31,9 @@ namespace JMedia {
         AVCodecContext      *codec_context;
         Decoder             decoder;
         int                 stream_index;
+		AVStream			*stream;
     };
+
 
     class FormatReader:public Reader{
     public:
@@ -40,10 +42,15 @@ namespace JMedia {
         int open();
 		int close();
 		map<string, string> metadata();
+		Duration duration();
+		Duration start_time();
         int read_packet(Packet &pkt);
         AVMediaType media_type(Packet &pkt);
         int find_decoder(AVMediaType media_type, Decoder &decoder);
         int getCodecContext(AVMediaType media_type, AVCodecContext *&codecContext);
+
+	private:
+		int findStream(AVMediaType media_type, Stream &stream);
     private:
         string                                      m_filename;
         AVFormatContext                             *m_input_format_context;

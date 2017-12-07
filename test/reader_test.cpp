@@ -84,6 +84,33 @@ TEST(format_reader, read_metadata)
 	std::shared_ptr<void> deferClose(nullptr, std::bind(&JMedia::FormatReader::close, &file));
 }
 
+TEST(format_reader, read_duration)
+{
+	auto path = current_path;
+	path.append("video.mov");
+
+	JMedia::FormatReader file(path.string());
+	file.open();
+
+	JMedia::Duration duration = file.duration();
+
+	std::shared_ptr<void> deferClose(nullptr, std::bind(&JMedia::FormatReader::close, &file));
+}
+
+TEST(format_reader, read_start_time)
+{
+	auto path = current_path;
+	path.append("video.mov");
+
+	JMedia::FormatReader file(path.string());
+	file.open();
+
+	JMedia::Duration duration = file.start_time();
+
+	std::shared_ptr<void> deferClose(nullptr, std::bind(&JMedia::FormatReader::close, &file));
+
+}
+
 
 GTEST_API_ int main(int argc, const char *argv[])
 {

@@ -18,6 +18,21 @@ extern "C"{
 
 namespace JMedia {
 
+	static Duration int64_2_duration(int64_t d)
+	{
+		Duration duration;
+
+		duration.Seconds = d / AV_TIME_BASE;
+		duration.Us = d % AV_TIME_BASE;
+		duration.Minutes = duration.Seconds / 60;
+		duration.Seconds %= 60;
+		duration.Hours = duration.Minutes / 60;
+		duration.Minutes %= 60;
+
+		return duration;
+	}
+
+
     FormatReader::FormatReader(const std::string &filename):
 		m_filename(filename),
 		m_input_format_context(NULL)
@@ -55,7 +70,35 @@ namespace JMedia {
 		return metadata;
 	}
 
+	Duration FormatReader::duration()
+	{
+		assert(m_input_format_context != nullptr);
 
+		if (m_input_format_context->duration == AV_NOPTS_VALUE) {
+			return int64_2_duration(0);
+		}
+
+		int64_t d = m_input_format_context->duration + (m_input_format_context->duration <= INT64_MAX - 5000 ? 5000 : 0);
+		Duration duration;
+
+		duration = int64_2_duration(d);
+		return duration;
+	}
+
+	Duration FormatReader::start_time()
+	{
+		assert(m_input_format_context != nullptr);
+
+		if (m_input_format_context->start_time == AV_NOPTS_VALUE) {
+			return int64_2_duration(0);
+		}
+
+		int64_t t = m_input_format_context->start_time + (m_input_format_context->start_time <= INT64_MAX - 5000 ? 5000 : 0);
+		Duration duration;
+
+		duration = int64_2_duration(t);
+		return duration;
+	}
 
     int FormatReader::open() 
 	{
@@ -73,9 +116,10 @@ namespace JMedia {
             return error_code;
         }
         for (unsigned int i = 0; i < m_input_format_context->nb_streams; i++) {
-            AVMediaType media_type = m_input_format_context->streams[i]->codecpar->codec_type;
-            AVCodecID codec_id = m_input_format_context->streams[i]->codecpar->codec_id;
-            AVCodecParameters *codecpar = m_input_format_context->streams[i]->codecpar;
+			AVStream	*stream = m_input_format_context->streams[i];
+            AVMediaType media_type = stream->codecpar->codec_type;
+            AVCodecID codec_id = stream->codecpar->codec_id;
+            AVCodecParameters *codecpar = stream->codecpar;
             int stream_index = i;
 
             input_codec = avcodec_find_decoder(codec_id);
@@ -99,8 +143,8 @@ namespace JMedia {
                 return error_code;
             }
             Decoder decoder = Decoder(codec_context);
-            Stream stream = {media_type,codec_context, decoder, stream_index};
-            m_streams.push_back(stream);
+            Stream stream_ = {media_type,codec_context, decoder, stream_index, stream};
+            m_streams.push_back(stream_);
         }
         return 0;
     }
@@ -161,6 +205,18 @@ namespace JMedia {
 		m_error.set_error(AVERROR_DECODER_NOT_FOUND);
 		return AVERROR_DECODER_NOT_FOUND;
     }
+
+	int FormatReader::findStream(AVMediaType media_type, Stream &stream)
+	{
+        for (auto it = m_streams.begin(); it != m_streams.end(); it++){
+            if (it->media_type == media_type){
+				stream = *it;
+				return 0;
+            }
+        }
+		m_error.set_error(AVERROR_STREAM_NOT_FOUND);
+		return AVERROR_STREAM_NOT_FOUND;
+	}
 
 }
 

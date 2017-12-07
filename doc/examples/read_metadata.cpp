@@ -27,7 +27,9 @@ int main(int argc, char *argv[])
 	std::shared_ptr<void> deferFileClose(nullptr, std::bind(&JMedia::FormatReader::close, &file));
 
 	std::map<string, string> metadata = file.metadata();
-	printf("filename:%-20s\n\n", fileName.c_str());
+	printf("Filename:%-20s\n\n", fileName.c_str());
+	printf("Start:%-20s\n", file.start_time().String().c_str());
+	printf("Duration:%-20s\n", file.duration().String().c_str());
 	for (auto tag = metadata.begin(); tag != metadata.end(); tag++) {
 		printf("%-20s:%-20s\n", tag->first.c_str(), tag->second.c_str());
 	}
