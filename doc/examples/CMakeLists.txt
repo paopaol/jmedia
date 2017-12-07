@@ -7,10 +7,15 @@ target_link_libraries(decode_media avformat avdevice avfilter avcodec  avutil sw
 add_executable(scale_video scale_video.cpp)
 target_link_libraries(scale_video avformat avdevice avfilter avcodec  avutil swscale swresample jmedia)
 
+add_executable(read_metadata read_metadata.cpp)
+target_link_libraries(read_metadata avformat avdevice avfilter avcodec  avutil swscale swresample jmedia)
+
+
 set_target_properties(
 	video_watermark
 	decode_media
 	scale_video
+	read_metadata
 	PROPERTIES
 	FOLDER
 	"example"
@@ -22,6 +27,7 @@ add_custom_command(
 	video_watermark
 	decode_media
 	scale_video
+	read_metadata
 	POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/thrd/ffmpeg/bin/avcodec-57.dll ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}
 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/thrd/ffmpeg/bin/avdevice-57.dll ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}

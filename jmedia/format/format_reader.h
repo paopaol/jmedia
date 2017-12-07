@@ -39,6 +39,7 @@ namespace JMedia {
         ~FormatReader();
         int open();
 		int close();
+		map<string, string> metadata();
         int read_packet(Packet &pkt);
         AVMediaType media_type(Packet &pkt);
         int find_decoder(AVMediaType media_type, Decoder &decoder);

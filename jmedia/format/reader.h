@@ -6,6 +6,7 @@
 #define DECODE_AUDIO_READER_H
 
 #include <string>
+#include <map>
 
 using namespace std;
 
@@ -18,6 +19,7 @@ namespace JMedia{
     public:
         virtual int open() = 0;
         virtual int close() = 0;
+		virtual map<string, string> metadata() = 0;
         virtual int read_packet(Packet &pkt) = 0;
         virtual AVMediaType media_type(Packet &pkt) = 0;
         virtual int find_decoder(AVMediaType media_type, Decoder &decoder) = 0;

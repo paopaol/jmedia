@@ -71,6 +71,19 @@ TEST(format_reader, open_empty)
 	std::shared_ptr<void> deferClose(nullptr, std::bind(&JMedia::FormatReader::close, &file));
 }
 
+TEST(format_reader, read_metadata)
+{
+	auto path = current_path;
+	path.append("video.mov");
+
+	JMedia::FormatReader file(path.string());
+	file.open();
+
+	std::map<string, string> metadata = file.metadata();
+
+	std::shared_ptr<void> deferClose(nullptr, std::bind(&JMedia::FormatReader::close, &file));
+}
+
 
 GTEST_API_ int main(int argc, const char *argv[])
 {

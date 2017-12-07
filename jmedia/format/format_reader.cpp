@@ -4,6 +4,7 @@
 
 #include <list>
 #include <string>
+#include <assert.h>
 
 #include "format_reader.h"
 #include <stdio.h>
@@ -12,6 +13,7 @@ extern "C"{
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/avutil.h>
+#include <libavutil/dict.h>
 }
 
 namespace JMedia {
@@ -39,6 +41,21 @@ namespace JMedia {
         }
 		return 0;
 	}
+
+	map<string, string> FormatReader::metadata()
+	{
+		assert(m_input_format_context != nullptr);
+
+		AVDictionaryEntry *tag = NULL;
+		map<string, string> metadata;
+
+		while ((tag = av_dict_get(m_input_format_context->metadata, "", tag, AV_DICT_IGNORE_SUFFIX))) {
+			metadata[tag->key] = tag->value;
+		}
+		return metadata;
+	}
+
+
 
     int FormatReader::open() 
 	{

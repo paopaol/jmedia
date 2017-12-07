@@ -17,9 +17,9 @@ link_directories(thrd/ffmpeg/lib)
 
 
 #google
-set(gtest_force_shared_crt ON)
-set(INSTALL_GTEST OFF)
-set(INSTALL_GMOCK OFF)
+set(gtest_force_shared_crt ON FORCE)
+set(INSTALL_GTEST OFF FORCE)
+set(INSTALL_GMOCK OFF FORCE)
 add_subdirectory(thrd/googletest)
 set_target_properties(
 	gtest gtest_main gmock gmock_main 
@@ -89,7 +89,12 @@ set(
 )
 source_group(resampler FILES ${source_resampler})
 
-
+set(
+	source_metadata
+	jmedia/metadata/metadata.cpp
+	jmedia/metadata/metadata.h
+)
+source_group(metadata FILES ${source_metadata})
 
 set(SOURCE_FILES
 	${source_base}
@@ -98,6 +103,7 @@ set(SOURCE_FILES
 	${source_filter}
 	${source_scaler}
 	${source_resampler}
+	${source_metadata}
 )
 
 
