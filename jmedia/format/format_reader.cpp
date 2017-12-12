@@ -22,7 +22,7 @@ namespace JMedia {
 	{
 		Duration duration;
 
-		duration.Seconds = d / AV_TIME_BASE;
+		duration.Seconds = (int)d / AV_TIME_BASE;
 		duration.Us = d % AV_TIME_BASE;
 		duration.Minutes = duration.Seconds / 60;
 		duration.Seconds %= 60;

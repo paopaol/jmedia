@@ -52,6 +52,7 @@ set(
 	jmedia/format/reader.h
     
 )
+source_group(format FILES ${source_format})
 
 set(
 	source_codec
@@ -60,11 +61,8 @@ set(
 )
 source_group(codec FILES ${source_codec})
 
-
-source_group(format FILES ${source_format})
-
 set(
-	source_filter
+	source_filter_graph
 	jmedia/filter/filter_graph.cpp
     jmedia/filter/filter_graph.h
 	jmedia/filter/filter.cpp
@@ -74,7 +72,32 @@ set(
 	jmedia/filter/filter_buffer.cpp
 	jmedia/filter/filter_buffer.h
 )
-source_group(filter FILES ${source_filter})
+source_group(filter FILES ${source_filter_graph})
+
+set(
+	filters_video
+	jmedia/filter/video/filter_ascii_chan.h
+	jmedia/filter/video/filter_ascii_chan.cpp
+	
+	jmedia/filter/video/filter_ascii_graph.h
+	jmedia/filter/video/filter_ascii_graph.cpp
+	
+	jmedia/filter/video/filter_ascii_scale.cpp
+	jmedia/filter/video/filter_ascii_movie.cpp
+	jmedia/filter/video/filter_ascii_overlay.cpp
+	
+
+	
+)
+source_group(filter\\\\video FILES ${filters_video})
+
+set(
+	source_filter
+	${source_filter_graph}
+	${filters_video}
+)
+
+
 
 set(
 	source_scaler
@@ -90,12 +113,6 @@ set(
 )
 source_group(resampler FILES ${source_resampler})
 
-set(
-	source_metadata
-	jmedia/metadata/metadata.cpp
-	jmedia/metadata/metadata.h
-)
-source_group(metadata FILES ${source_metadata})
 
 set(SOURCE_FILES
 	${source_base}
@@ -104,7 +121,6 @@ set(SOURCE_FILES
 	${source_filter}
 	${source_scaler}
 	${source_resampler}
-	${source_metadata}
 )
 
 

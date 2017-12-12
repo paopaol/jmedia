@@ -1,10 +1,3 @@
-//
-// Created by jz on 16-12-21.
-//
-
-#include <stdio.h>
-
-#include <iostream>
 #include <string>
 #include <functional>
 #include <memory>
@@ -14,8 +7,6 @@
 #include <filter/filter_buffer.h>
 #include <filter/filter_buffersink.h>
 #include <filter/filter_graph.h>
-#include <filter/video/filter_ascii_graph.h>
-#include <filter/video/filter_ascii_chan.h>
 
 using  namespace std;
 using namespace std::tr2::sys;
@@ -159,7 +150,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	std::string filename = argv[1];
-	std::string logo = argv[2];
+	std::string video_second = argv[2];
 
 
 
@@ -230,24 +221,15 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	//auto escape_moive = [](const std::string &logo) {
-	//	return "\\'" + logo + "\\'";
-	////};
-
-	JMedia::VideoFilterAsciiGraph g;
-	JMedia::VideoFilterAsciiChan  ch;
-
-	g.push_chan(
-		ch.reset().movie(logo).output("wm")
-	).push_chan(
-		ch.reset().in("in").in("wm").overlay(5, 5).reduceX(5, 5).output("out")
-	);
-
-	//logo = escape_moive(logo);
-	//char filterdescri[1024] = { 0 };
-	//sprintf(filterdescri, "movie=%s[wm];[in][wm]overlay=5:5[out]", logo.c_str());
+	auto escape_moive = [](const std::string &logo) {
+		return "\\'" + logo + "\\'";
+	};
+	std::string logo;
+	logo = escape_moive(logo);
+	char filterdescri[1024] = { 0 };
+	sprintf(filterdescri, "movie=%s[wm];[in][wm]overlay=5:5[out]", logo.c_str());
 	//sprintf(filterdescri, "movie=%s[wm];[in][wm]overlay=5:5,scale=iw/5:ih/5[out]", logo.c_str());
-	error = graph.config(g.string());
+	error = graph.config(filterdescri);
 	if (error < 0) {
 		puts(graph.errors());
 		return 1;

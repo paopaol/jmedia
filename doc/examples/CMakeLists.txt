@@ -10,12 +10,16 @@ target_link_libraries(scale_video avformat avdevice avfilter avcodec  avutil sws
 add_executable(read_metadata read_metadata.cpp)
 target_link_libraries(read_metadata avformat avdevice avfilter avcodec  avutil swscale swresample jmedia)
 
+add_executable(video_in_video video_in_video.cpp)
+target_link_libraries(video_in_video avformat avdevice avfilter avcodec  avutil swscale swresample jmedia)
+
 
 set_target_properties(
 	video_watermark
 	decode_media
 	scale_video
 	read_metadata
+	video_in_video
 	PROPERTIES
 	FOLDER
 	"example"

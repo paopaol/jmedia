@@ -13,10 +13,45 @@ target_link_libraries(jmedia_test
 
 set_target_properties(jmedia_test PROPERTIES FOLDER "test")
 
+
+add_executable(
+	video_filter_chan
+	video_filter_chan.cpp
+	)
+target_link_libraries(video_filter_chan
+	avformat 
+	avdevice 
+	avfilter 
+	avcodec  
+	avutil 
+	swscale 
+	swresample 
+	jmedia 
+	gtest
+)
+set_target_properties(video_filter_chan PROPERTIES FOLDER "test")
+
+add_executable(video_filter_ascii_test video_filter_ascii_test.cpp)
+target_link_libraries(video_filter_ascii_test 
+	avformat 
+	avdevice 
+	avfilter 
+	avcodec  
+	avutil 
+	swscale 
+	swresample 
+	jmedia 
+	gtest
+)
+
+set_target_properties(video_filter_ascii_test PROPERTIES FOLDER "test")
+
+
 add_custom_command(
 	TARGET
-	filter_buffer_test
+	video_filter_chan
 	jmedia_test
+	video_filter_ascii_test
 	POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/thrd/ffmpeg/bin/avcodec-57.dll ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}
 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/thrd/ffmpeg/bin/avdevice-57.dll ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}
@@ -34,8 +69,11 @@ add_custom_command(
 
 include(GoogleTest)
 gtest_add_tests(
-	TARGET      jmedia_test
+	TARGET      jmedia_test video_filter_ascii_test
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}
-	#TEST_SUFfIX .noArgs
-	#TEST_LIST noArgsTests
 )
+gtest_add_tests(
+	TARGET      video_filter_ascii_test
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}
+)
+
