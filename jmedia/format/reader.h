@@ -10,7 +10,7 @@
 
 
 #include "base.h"
-#include "Decoder.h"
+#include "codec/Decoder.h"
 #include "Error.h"
 
 namespace JMedia{

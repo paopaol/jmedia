@@ -19,6 +19,7 @@ namespace JMedia{
     Scaler::~Scaler()
     {
 		if (m_frame) {
+            av_freep(&m_frame->data[0]);
 			av_frame_free(&m_frame);
 		}
 
@@ -58,20 +59,21 @@ namespace JMedia{
         return 0;
     }
 
-    int Scaler::convert(const AVFrame *frame, AVFrame *&outFrame)
+    int Scaler::scale(const AVFrame *in, AVFrame *&out)
     {
         int         error = 0;
 
         error = sws_scale(m_sws_context, 
-			frame->data, frame->linesize, 0, m_config.src_height, 
+			in->data, in->linesize, 0, m_config.src_height, 
 			m_frame->data, m_frame->linesize);
         if (error < 0){
             m_error.set_error(error);
             return error;
         }
 		AVFrame *v = av_frame_alloc();
+        av_frame_unref(v);
 		av_frame_move_ref(v, m_frame);
-		outFrame = v;
+		out = v;
         return 0;
     }
 }

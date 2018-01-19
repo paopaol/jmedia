@@ -134,7 +134,7 @@ static void freeAVFrames(std::list<AVFrame *> *frames)
 {
 	while (!frames->empty()) {
 		AVFrame *f = frames->front();
-		av_frame_unref(f);
+		//av_frame_unref(f);
 		av_frame_free(&f);
 		frames->pop_front();
 	}
@@ -220,9 +220,9 @@ int main(int argc, char *argv[]) {
 			for (auto frame = frames.begin(); frame != frames.end(); frame++) {
 				AVFrame *f = *frame;
 				
+
 				JMedia::Scaler scaler;
 				JMedia::ScalerConfig conf;
-
 				conf.src_height = f->height;
 				conf.src_width = f->width;
 				conf.src_pix_fmt = ajust_pix_fmt((AVPixelFormat)f->format);
@@ -237,19 +237,21 @@ int main(int argc, char *argv[]) {
 					return 1;
 				}
 				AVFrame *rgbFrame = NULL;
-				error = scaler.convert(f, rgbFrame);
+				error = scaler.scale(f, rgbFrame);
 				if (error < 0) {
 					puts(scaler.errors());
 					return 1;
 				}
 				std::shared_ptr<void> rgbFree(nullptr, std::bind(av_frame_free, &rgbFrame));
-				std::shared_ptr<void> rgbUnref(nullptr, std::bind(av_frame_unref, rgbFrame));
+				std::shared_ptr<void> rgbUnref(nullptr, std::bind(av_freep, &rgbFrame->data[0]));
+#if 1
 				if (conf.dst_pix_fmt == AV_PIX_FMT_YUV420P) {
 					save_yuv_file(filename, rgbFrame);
 				}
 				else {
 					save_bmp(filename, rgbFrame);
 				}
+#endif
 			}
 
 		}

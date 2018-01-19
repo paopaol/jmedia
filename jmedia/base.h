@@ -24,6 +24,14 @@ namespace JMedia{
 		}
         AVPacket    m_pkt;
     };
+
+    struct Stream{
+        AVMediaType         media_type;
+        AVCodecContext      *codec_context;
+        Decoder             decoder;
+        int                 stream_index;
+        AVStream			*stream;
+    };
 }
 
 #endif //DECODE_AUDIO_BASE_H

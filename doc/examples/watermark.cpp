@@ -240,7 +240,9 @@ int main(int argc, char *argv[]) {
 	g.push_chan(
 		ch.reset().movie(logo).output("wm")
 	).push_chan(
-		ch.reset().in("in").in("wm").overlay(5, 5).reduceX(5, 5).output("out")
+		ch.reset().in("wm").scale(100, 100).output("smallwm")
+	).push_chan(
+		ch.reset().in("in").in("smallwm").overlay(5, 5).output("out")
 	);
 
 	//logo = escape_moive(logo);

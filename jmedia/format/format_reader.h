@@ -10,7 +10,7 @@
 #include <string>
 #include <tuple>
 #include <map>
-#include "Decoder.h"
+#include "codec/Decoder.h"
 #include "Error.h"
 #include "base.h"
 #include "Reader.h"
@@ -26,13 +26,6 @@ extern "C"{
 
 
 namespace JMedia {
-    struct Stream{
-        AVMediaType         media_type;
-        AVCodecContext      *codec_context;
-        Decoder             decoder;
-        int                 stream_index;
-		AVStream			*stream;
-    };
 
 
     class FormatReader:public Reader{

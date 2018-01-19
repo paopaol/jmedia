@@ -27,7 +27,7 @@ namespace JMedia{
 
         int init_once(ScalerConfig &config);
 
-		int convert(const AVFrame *frame, AVFrame *&outFrame);
+		int scale(const AVFrame *in, AVFrame *&out);
         const char *errors(){
             return m_error.what();
         }
