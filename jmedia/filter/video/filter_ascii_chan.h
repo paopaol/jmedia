@@ -22,6 +22,13 @@ namespace JMedia {
 		VideoFilterAsciiChan &overlay_bottom_left(int bottom, int left);
 		VideoFilterAsciiChan &overlay_bottom_right(int bottom, int right);
 
+        //http://ffmpeg.org/ffmpeg-filters.html#drawbox-1
+        VideoFilterAsciiChan &drawbox(int x = 0, int y = 0, //start point
+                                    int w = 0, int h = 0, 
+                                    int thickness = 3, double opacity = 1.0, 
+                                    unsigned int color = 0xFFFFFF,
+                                    bool invert = false);
+
 
 		std::string string();
 		VideoFilterAsciiChan &reset();

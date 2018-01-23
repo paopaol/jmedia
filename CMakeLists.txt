@@ -8,27 +8,42 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 set(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE})
-enable_testing()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(ROOT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 
+## ffmpeg
+if (NOT FFMPEG_LIBS_DIR)
+  message(FATAL_ERROR "pls set FFMPEG_LIBS_DIR")
+endif()
+if (NOT FFMPEG_BINS_DIR)
+  message(FATAL_ERROR "pls set FFMPEG_BINS_DIR")
+endif()
+if (NOT FFMPEG_INCLUDE_DIR)
+  message(FATAL_ERROR "pls set FFMPEG_INCLUDE_DIR")
+endif()
+
+
+# for test switch
+if (NOT DISABLE_JMEDIA_TEST)
+  enable_testing()
+endif()
+
+# for example switch
+if (NOT DISABLE_JMEDIA_EXAMPLE)
+  set(BUILD_JMEDIA_EXAMPLE ON)
+endif()
+
+
+
 #ffmpeg
-include_directories(thrd/ffmpeg/include)
-link_directories(thrd/ffmpeg/lib)
+include_directories(${FFMPEG_INCLUDE_DIR})
+link_directories(${FFMPEG_LIBS_DIR})
 
 
-#google
-set(gtest_force_shared_crt ON CACHE BOOL "")
-set(INSTALL_GTEST  OFF CACHE BOOL "")
-set(INSTALL_GMOCK  OFF CACHE BOOL "")
-add_subdirectory(thrd/googletest)
 
-set_target_properties(
-  gtest gtest_main gmock gmock_main
-  PROPERTIES FOLDER "google")
-include_directories(thrd/googletest/include)
 
 
 include_directories(
@@ -90,6 +105,7 @@ set(
   jmedia/filter/video/filter_ascii_scale.cpp
   jmedia/filter/video/filter_ascii_movie.cpp
   jmedia/filter/video/filter_ascii_overlay.cpp
+  jmedia/filter/video/filter_ascii_drawbox.cpp
 
 
 
@@ -139,5 +155,10 @@ SET (CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /SAFESEH:NO")
 add_library(jmedia ${SOURCE_FILES})
 target_compile_definitions(jmedia PUBLIC  "_CRT_SECURE_NO_WARNINGS" "__STDC_LIMIT_MACROS" "__STDC_CONSTANT_MACROS ")
 target_link_libraries(jmedia avformat avdevice avfilter avcodec  avutil swscale swresample)
-add_subdirectory(test)
-add_subdirectory(doc/examples)
+
+if (NOT DISABLE_JMEDIA_TEST)
+  add_subdirectory(test)
+endif()
+if (BUILD_JMEDIA_EXAMPLE)
+  add_subdirectory(doc/examples)
+endif()
