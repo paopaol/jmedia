@@ -15,7 +15,7 @@ target_link_libraries(video_in_video avformat avdevice avfilter avcodec  avutil 
 
 set_target_properties(
 	video_watermark
-decode_media
+	decode_media
 	scale_video
 	read_metadata
 	video_in_video
@@ -49,15 +49,15 @@ add_custom_command(
 #decode
 add_test(
 	test_decode_picture
-	decode_media.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/test.jpg
+	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/decode_media.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/test.jpg
 )
 add_test(
 	test_decode_video
-	decode_media.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/video.mov
+	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/decode_media.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/video.mov
 )
 add_test(
 	test_decode_badfile
-	decode_media.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/avdevice-57.dll
+	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/decode_media.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/avdevice-57.dll
 )
 set_tests_properties(
 	test_decode_badfile
@@ -68,27 +68,27 @@ set_tests_properties(
 #watermask
 add_test(
 	test_jpg_add_watermark
-	video_watermark.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/test.jpg ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/logo.png
+	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/video_watermark.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/test.jpg ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/logo.png
 )
 add_test(
 	test_video_add_watermark
-	video_watermark.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/video.mov ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/logo.png
+	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/video_watermark.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/video.mov ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/logo.png
 )
 
 #scale
 add_test(
 	test_video_scale_picture
-	scale_video.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/test.jpg 500 700 yuv
+	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/scale_video.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/test.jpg 500 700 yuv
 )
 add_test(
 	test_scale_picture
-	scale_video.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/test.jpg 555 333 bmp
+	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/scale_video.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/test.jpg 555 333 bmp
 )
 add_test(
 	test_scale_picture2
-	scale_video.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/test.jpg 555 333 yuv
+	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/scale_video.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/test.jpg 555 333 yuv
 )
 add_test(
 	test_scale_video
-	scale_video.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/video.mov 500 700 yuv
+	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/scale_video.exe ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE}/video.mov 500 700 yuv
 )

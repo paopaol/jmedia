@@ -206,7 +206,7 @@ namespace JMedia {
 		return AVERROR_DECODER_NOT_FOUND;
     }
 
-	int FormatReader::findStream(AVMediaType media_type, Stream &stream)
+	int FormatReader::find_stream(AVMediaType media_type, Stream &stream)
 	{
         for (auto it = m_streams.begin(); it != m_streams.end(); it++){
             if (it->media_type == media_type){

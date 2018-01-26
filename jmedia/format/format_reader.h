@@ -42,8 +42,7 @@ namespace JMedia {
         int find_decoder(AVMediaType media_type, Decoder &decoder);
         int getCodecContext(AVMediaType media_type, AVCodecContext *&codecContext);
 
-	private:
-		int findStream(AVMediaType media_type, Stream &stream);
+		int find_stream(AVMediaType media_type, Stream &stream);
     private:
         string                                      m_filename;
         AVFormatContext                             *m_input_format_context;
