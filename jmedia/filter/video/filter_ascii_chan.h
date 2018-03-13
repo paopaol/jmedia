@@ -29,6 +29,10 @@ namespace JMedia {
                                     unsigned int color = 0xFFFFFF,
                                     bool invert = false);
 
+		VideoFilterAsciiChan &crop(int x = 0, int y = 0, int w = 0, int h = 0);
+
+		VideoFilterAsciiChan &drawtext(int x, int y, std::string stitle, int size=70,
+			std::string fontfile = "simhei.ttf",std::string scolor="red");
 
 		std::string string();
 		VideoFilterAsciiChan &reset();

@@ -32,9 +32,8 @@ namespace JMedia{
     {
         int         error = 0;
 
-        m_config = config;
-
         if (m_sws_context == nullptr){
+            m_config = config;
 			m_frame->width = config.dst_width;
 			m_frame->height = config.dst_height;
 			m_frame->format = config.dst_pix_fmt;
@@ -70,10 +69,15 @@ namespace JMedia{
             m_error.set_error(error);
             return error;
         }
-		AVFrame *v = av_frame_alloc();
-        av_frame_unref(v);
-		av_frame_move_ref(v, m_frame);
-		out = v;
+		//AVFrame *v = av_frame_alloc();
+        //av_frame_unref(v);
+		//av_frame_move_ref(v, m_frame);
+		//out = v;
         return 0;
+    }
+
+    AVFrame *Scaler::get_scaled()
+    {
+        return m_frame;
     }
 }

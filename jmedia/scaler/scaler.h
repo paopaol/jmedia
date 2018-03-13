@@ -1,3 +1,5 @@
+#ifndef JMEDIA_SCALER_H
+#define JMEDIA_SCALER_H
 
 extern "C"{
 #include <libswscale/swscale.h>
@@ -28,6 +30,7 @@ namespace JMedia{
         int init_once(ScalerConfig &config);
 
 		int scale(const AVFrame *in, AVFrame *&out);
+        AVFrame *get_scaled();
         const char *errors(){
             return m_error.what();
         }
@@ -47,3 +50,5 @@ namespace JMedia{
         error                   m_error;
     };
 }
+
+#endif

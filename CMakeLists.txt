@@ -119,7 +119,8 @@ set(
   jmedia/filter/video/filter_ascii_movie.cpp
   jmedia/filter/video/filter_ascii_overlay.cpp
   jmedia/filter/video/filter_ascii_drawbox.cpp
-
+  jmedia/filter/video/filter_ascii_crop.cpp
+  jmedia/filter/video/filter_ascii_drawtext.cpp
 
 
   )

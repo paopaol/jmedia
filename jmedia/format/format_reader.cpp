@@ -4,6 +4,8 @@
 
 #include <list>
 #include <string>
+#include <functional>
+#include <memory>
 #include <assert.h>
 
 #include "format_reader.h"
@@ -16,7 +18,13 @@ extern "C"{
 #include <libavutil/dict.h>
 }
 
+
+#include <Windows.h>
+
+
 namespace JMedia {
+
+    using namespace std;
 
 	static Duration int64_2_duration(int64_t d)
 	{
@@ -33,14 +41,54 @@ namespace JMedia {
 	}
 
 
+
+
+
+
+    
+    class FormatReaderPrivate {
+    public:
+        bool            Timeout;
+        MMRESULT        TimerId;
+    };
+
+
+
+    static void WINAPI  timerfunc(UINT wTimerID, UINT msg, DWORD dwUser, DWORD dwl, DWORD dw2)
+    {
+        FormatReaderPrivate *priv = (FormatReaderPrivate *)dwUser;
+        assert(wTimerID == priv->TimerId);
+        priv->Timeout = true;
+    }
+
+    int FormatReader::interruput(void *arg)
+    {
+        FormatReaderPrivate *priv = (FormatReaderPrivate *)arg;
+        if (priv->Timeout) {
+            return 1;
+        }
+        return 0;
+    }
+
+
+
+
+
+
+
+
     FormatReader::FormatReader(const std::string &filename):
 		m_filename(filename),
-		m_input_format_context(NULL)
+		m_input_format_context(NULL),
+        priv(NULL)
     {
     }
 
     FormatReader::~FormatReader() 
 	{
+        if (priv) {
+            delete priv;
+        }
     }
 
 	int FormatReader::close()
@@ -100,16 +148,37 @@ namespace JMedia {
 		return duration;
 	}
 
+ 
+
     int FormatReader::open() 
 	{
         int error_code;
         AVCodec *input_codec = NULL;
+        AVDictionary* options = NULL;
+        av_dict_set(&options, "buffer_size", "1024000", 0);
 
-        error_code = avformat_open_input(&m_input_format_context, m_filename.c_str(), NULL, NULL);
+        m_input_format_context = avformat_alloc_context();
+        if (!m_input_format_context) {
+            m_error.set_error(AVERROR(ENOMEM));
+            return AVERROR(ENOMEM);
+        }
+
+        priv = new FormatReaderPrivate;
+        priv->TimerId = timeSetEvent(1000 * 30, 1, (LPTIMECALLBACK)timerfunc, DWORD(priv), TIME_ONESHOT);
+        priv->Timeout = false;
+
+        m_input_format_context->interrupt_callback.callback = interruput;
+        m_input_format_context->interrupt_callback.opaque = priv;
+
+        std::shared_ptr<void> __(nullptr, std::bind([this]() {
+            timeKillEvent(priv->TimerId);
+        }));
+        error_code = avformat_open_input(&m_input_format_context, m_filename.c_str(), NULL, &options);
         if (error_code < 0) {
             m_error.set_error(error_code); 
             return error_code;
         }
+        
         error_code = avformat_find_stream_info(m_input_format_context, NULL);
         if (error_code < 0) {
             m_error.set_error(error_code); 

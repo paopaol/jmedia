@@ -27,7 +27,7 @@ extern "C"{
 
 namespace JMedia {
 
-
+    class FormatReaderPrivate;
     class FormatReader:public Reader{
     public:
         FormatReader(const string &filename);
@@ -44,9 +44,13 @@ namespace JMedia {
 
 		int find_stream(AVMediaType media_type, Stream &stream);
     private:
+        static int FormatReader::interruput(void *arg);
+
+
         string                                      m_filename;
         AVFormatContext                             *m_input_format_context;
         std::list<Stream>                           m_streams;
+        FormatReaderPrivate                         *priv;
     };
 };
 
