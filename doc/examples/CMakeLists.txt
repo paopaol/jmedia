@@ -1,17 +1,17 @@
 add_executable(video_watermark watermark.cpp)
-target_link_libraries(video_watermark avformat avdevice avfilter avcodec  avutil swscale swresample jmedia)
+target_link_libraries(video_watermark avformat avdevice avfilter avcodec  avutil swscale swresample jmedia Winmm)
 
 add_executable(decode_media decode_media.cpp)
-target_link_libraries(decode_media avformat avdevice avfilter avcodec  avutil swscale swresample jmedia)
+target_link_libraries(decode_media avformat avdevice avfilter avcodec  avutil swscale swresample jmedia Winmm)
 
 add_executable(scale_video scale_video.cpp)
-target_link_libraries(scale_video avformat avdevice avfilter avcodec  avutil swscale swresample jmedia)
+target_link_libraries(scale_video avformat avdevice avfilter avcodec  avutil swscale swresample jmedia Winmm)
 
 add_executable(read_metadata read_metadata.cpp)
-target_link_libraries(read_metadata avformat avdevice avfilter avcodec  avutil swscale swresample jmedia)
+target_link_libraries(read_metadata avformat avdevice avfilter avcodec  avutil swscale swresample jmedia Winmm)
 
 add_executable(video_in_video video_in_video.cpp)
-target_link_libraries(video_in_video avformat avdevice avfilter avcodec  avutil swscale swresample jmedia)
+target_link_libraries(video_in_video avformat avdevice avfilter avcodec  avutil swscale swresample jmedia Winmm)
 
 set_target_properties(
 	video_watermark

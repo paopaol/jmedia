@@ -55,7 +55,7 @@ static int save_bmp(string &fname, AVFrame *f)
     char            outputfile[1024] = {0};
     static int      index = 0;
 
-	path filePath(fname);
+	path filePath("123");
 
     sprintf(outputfile, "%s_%d_%d_%d.bmp", filePath.stem().string().c_str(), f->width, f->height, index);
 
@@ -95,7 +95,7 @@ static void save_yuv_file(string &fname, AVFrame *f)
     char            outputfile[1024] = {0};
     static int      index = 0;
 
-	path filePath(fname);
+	path filePath("111");
 
     sprintf(outputfile, "%s_%d_%d.yuv", filePath.stem().string().c_str(), f->width, f->height);
 
@@ -145,7 +145,7 @@ static void freeAVFrames(std::list<AVFrame *> *frames)
 
 static void Usage()
 {
-	puts("video_watermask inputfile w h [yuv/bmp]");
+	puts("scale_video inputfile w h [yuv/bmp]");
 }
 
 
@@ -173,6 +173,8 @@ int main(int argc, char *argv[]) {
     int error;
     JMedia::FormatReader        file(argv[1]);
 
+    JMedia::Scaler scaler;
+    JMedia::ScalerConfig conf;
 
 
     error = file.open();
@@ -221,8 +223,6 @@ int main(int argc, char *argv[]) {
 				AVFrame *f = *frame;
 				
 
-				JMedia::Scaler scaler;
-				JMedia::ScalerConfig conf;
 				conf.src_height = f->height;
 				conf.src_width = f->width;
 				conf.src_pix_fmt = ajust_pix_fmt((AVPixelFormat)f->format);
@@ -242,8 +242,7 @@ int main(int argc, char *argv[]) {
 					puts(scaler.errors());
 					return 1;
 				}
-				std::shared_ptr<void> rgbFree(nullptr, std::bind(av_frame_free, &rgbFrame));
-				std::shared_ptr<void> rgbUnref(nullptr, std::bind(av_freep, &rgbFrame->data[0]));
+                rgbFrame = scaler.get_scaled();
 #if 1
 				if (conf.dst_pix_fmt == AV_PIX_FMT_YUV420P) {
 					save_yuv_file(filename, rgbFrame);

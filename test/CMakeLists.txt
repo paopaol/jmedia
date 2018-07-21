@@ -42,6 +42,7 @@ target_link_libraries(video_filter_ascii_test
 	swresample 
 	jmedia 
 	gtest
+    Winmm
 )
 
 set_target_properties(video_filter_ascii_test PROPERTIES FOLDER "test")
