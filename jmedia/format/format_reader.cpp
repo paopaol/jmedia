@@ -157,22 +157,22 @@ namespace JMedia {
         AVDictionary* options = NULL;
         av_dict_set(&options, "buffer_size", "1024000", 0);
 
-		m_input_format_context = avformat_alloc_context();
-		if (!m_input_format_context) {
-			m_error.set_error(AVERROR(ENOMEM));
-			return AVERROR(ENOMEM);
-		}
+        m_input_format_context = avformat_alloc_context();
+        if (!m_input_format_context) {
+            m_error.set_error(AVERROR(ENOMEM));
+            return AVERROR(ENOMEM);
+        }
 
-		priv = new FormatReaderPrivate;
-		priv->TimerId = timeSetEvent(1000 * 30, 1, (LPTIMECALLBACK)timerfunc, DWORD(priv), TIME_ONESHOT);
-		priv->Timeout = false;
+        priv = new FormatReaderPrivate;
+        priv->TimerId = timeSetEvent(1000 * 30, 1, (LPTIMECALLBACK)timerfunc, DWORD(priv), TIME_ONESHOT);
+        priv->Timeout = false;
 
-		m_input_format_context->interrupt_callback.callback = interruput;
-		m_input_format_context->interrupt_callback.opaque = priv;
+        m_input_format_context->interrupt_callback.callback = interruput;
+        m_input_format_context->interrupt_callback.opaque = priv;
 
-		std::shared_ptr<void> __(nullptr, std::bind([this]() {
-			timeKillEvent(priv->TimerId);
-		}));
+        std::shared_ptr<void> __(nullptr, std::bind([this]() {
+            timeKillEvent(priv->TimerId);
+        }));
         error_code = avformat_open_input(&m_input_format_context, m_filename.c_str(), NULL, &options);
         if (error_code < 0) {
             m_error.set_error(error_code); 
