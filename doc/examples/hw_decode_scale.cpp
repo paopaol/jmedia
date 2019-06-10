@@ -1,3 +1,10 @@
+//
+// Created by jz on 16-12-21.
+//
+
+#include <stdio.h>
+
+#include <iostream>
 #include <string>
 #include <functional>
 #include <memory>
@@ -7,6 +14,11 @@
 #include <filter/filter_buffer.h>
 #include <filter/filter_buffersink.h>
 #include <filter/filter_graph.h>
+#include <filter/video/filter_ascii_graph.h>
+#include <filter/video/filter_ascii_chan.h>
+#include <filter/filter_graph_n.h>
+
+#include <Windows.h>
 
 using  namespace std;
 using namespace std::tr2::sys;
@@ -140,17 +152,18 @@ static void freeAVFrames(std::list<AVFrame *> *frames)
 
 static void Usage()
 {
-	puts("video_watermask inputfile logofile");
+	puts("video_watermask inputfile w h");
 }
 
 
 int main(int argc, char *argv[]) {
-	if (argc != 3) {
+	if (argc != 4) {
 		Usage();
 		return 1;
 	}
 	std::string filename = argv[1];
-	std::string video_second = argv[2];
+	int w = atoi(argv[2]);
+	int h = atoi(argv[3]);
 
 
 
@@ -160,14 +173,15 @@ int main(int argc, char *argv[]) {
 
     int error;
     JMedia::FormatReader        file(argv[1]);
-	JMedia::FilterGraph         graph;
-	JMedia::FilterBuffer	    buffer(&graph, "in");
-	JMedia::FilterBuffersink    buffersink(&graph, "out");
+	std::shared_ptr<JMedia::FilterGraphN> graph;
+	//JMedia::FilterGraph         graph;
+	//JMedia::FilterBuffer	    buffer(&graph, "in");
+	//JMedia::FilterBuffersink    buffersink(&graph, "out");
 
-	graph.set_src_sink(buffer, buffersink);
+	//graph.set_src_sink(buffer, buffersink);
 
 
-    error = file.open();
+    error = file.open(false);
     if (error < 0) {
         puts(file.errors());
         return 1;
@@ -181,59 +195,84 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
+	w = codecContext->width;
+	h = codecContext->height;
 
-	//h w
-	buffer.set_h(codecContext->height);
-	buffer.set_w(codecContext->width);
+	////h w
+	//buffer.set_h(codecContext->height);
+	//buffer.set_w(codecContext->width);
 
 	//pix_fmt
-	AVPixelFormat pix_fmt = ajust_pix_fmt((AVPixelFormat)codecContext->pix_fmt);
-	buffer.set_pix_fmt(pix_fmt);
+	//AVPixelFormat pix_fmt = ajust_pix_fmt((AVPixelFormat)codecContext->pix_fmt);
+	AVPixelFormat pix_fmt = ajust_pix_fmt((AVPixelFormat)AV_PIX_FMT_QSV);
+	//buffer.set_pix_fmt(pix_fmt);
 
 
+	AVRational frame_rate = codecContext->framerate;
+	frame_rate = { 24000, 1001 };
+	//if (!frame_rate.num)
+	//	frame_rate = av_guess_frame_rate(fmt_ctx, ist->st, NULL);
 	//time_base
 	AVRational time_base = codecContext->time_base;
-	time_base.num = time_base.num == 0 ? 1 : time_base.num;
-	buffer.set_time_base(time_base);
+	time_base = {1, 24000};
+
+	//time_base.num = time_base.num == 0 ? 1 : time_base.num;
+	//buffer.set_time_base(time_base);
 
 	//sample aspect ratio
 	AVRational sample_aspect_ratio = codecContext->sample_aspect_ratio;
-	sample_aspect_ratio.num = sample_aspect_ratio.num == 0 ? 1 : sample_aspect_ratio.num;
-	buffer.set_pixel_aspect(sample_aspect_ratio);
+	//sample_aspect_ratio.num = sample_aspect_ratio.num == 0 ? 1 : sample_aspect_ratio.num;
+	//buffer.set_pixel_aspect(sample_aspect_ratio);
+
+	AVBufferRef *hw_ctx = nullptr;
+
 
 	//init all set of paramters
-	error = buffer.init_str();
-	if (error < 0) {
-		puts(buffer.errors());
-		return 1;
-	}
+	//buffer.getAVFilterContext()->hw_device_ctx = av_buffer_ref(hw_ctx);
+	//error = buffer.init_str();
+	//if (error < 0) {
+	//	puts(buffer.errors());
+	//	return 1;
+	//}
 
 	//set output pix_fmts
 	std::vector<AVPixelFormat> pix_fmts = {
-		AV_PIX_FMT_YUV420P,
+		AV_PIX_FMT_D3D11VA_VLD,
 		AV_PIX_FMT_NONE
 	};
-	buffersink.set_pix_fmts(pix_fmts);
+	//buffersink.set_pix_fmts(pix_fmts);
+	//buffersink.getAVFilterContext()->hw_device_ctx = av_buffer_ref(hw_ctx);
+	//error = buffersink.init_str();
+	//if (error < 0) {
+	//	puts(buffer.errors());
+	//	return 1;
+	//}
 
-	error = buffersink.init_str();
-	if (error < 0) {
-		puts(buffer.errors());
-		return 1;
-	}
+	//auto escape_moive = [](const std::string &logo) {
+	//	return "\\'" + logo + "\\'";
+	////};
 
-	auto escape_moive = [](const std::string &logo) {
-		return "\\'" + logo + "\\'";
-	};
-	std::string logo;
-	logo = escape_moive(logo);
-	char filterdescri[1024] = { 0 };
-	sprintf(filterdescri, "movie=%s[wm];[in][wm]overlay=5:5[out]", logo.c_str());
-	//sprintf(filterdescri, "movie=%s[wm];[in][wm]overlay=5:5,scale=iw/5:ih/5[out]", logo.c_str());
-	error = graph.config(filterdescri);
-	if (error < 0) {
-		puts(graph.errors());
-		return 1;
-	}
+	JMedia::VideoFilterAsciiGraph g;
+	JMedia::VideoFilterAsciiChan  ch;
+
+	g.push_chan(
+		ch.reset().hwmap("qsv").format("qsv").scale_qsv(1280, 720)
+		//ch.reset().hwmap("qsv").format("qsv")
+	);
+
+	//graph.set_hw_dev_ctx(hw_ctx);
+
+	//error = graph.config(g.string());
+	//if (error < 0) {
+	//	puts(graph.errors());
+	//	return 1;
+	//}
+
+	graph = std::make_shared<FilterGraphN>(g.string());
+
+
+	//error = graph->graph_init();
+	bool init = false;
 
 	std::list<AVFrame *>        frames;
 	JMedia::Packet              pkt;
@@ -270,19 +309,25 @@ int main(int argc, char *argv[]) {
 		if (mediaType == AVMEDIA_TYPE_VIDEO) {
 			for (auto frame = frames.begin(); frame != frames.end(); frame++) {
 				AVFrame *f = *frame;
+				if (!init) {
+					graph->set_input_video_info(time_base, frame_rate, sample_aspect_ratio, w, h, pix_fmt, f->hw_frames_ctx);
+					error = graph->graph_init();
+					init = true;
+				}
 
 				f->pts = av_frame_get_best_effort_timestamp(f);
+				AVPixelFormat fmt = (AVPixelFormat)f->format;
 
-				error = graph.src_add_frame(f);
+
+
+				error = graph->src_add_frame(f);
 				if (error < 0) {
-					puts(graph.errors());
 					return 1;
 				}
 
 				std::list<AVFrame *> gotFrameList;
-				error = graph.sink_get_frame(gotFrameList);
+				error = graph->sink_get_frame(gotFrameList);
 				if (error < 0) {
-					puts(graph.errors());
 					return 1;
 				}
 				if (gotFrameList.size() == 0) {
@@ -291,7 +336,15 @@ int main(int argc, char *argv[]) {
 				std::shared_ptr<void> deferFreeGotFrames(nullptr, std::bind(freeAVFrames, &gotFrameList));
 
 				for(auto &frame : gotFrameList) {
-					save_yuv_file(filename, frame);
+					static AVFrame *swf = nullptr;
+					if (!swf) {
+						swf = av_frame_alloc();
+					}
+					int ret = 0;
+					ret = av_hwframe_transfer_data(swf, frame, 0);
+					AVPixelFormat fmt = (AVPixelFormat)swf->format;
+					::Sleep(40);
+					//save_yuv_file(filename, swf);
 					//save_bmp(filename, frame);
 				}
 			}

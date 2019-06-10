@@ -13,7 +13,7 @@ namespace JMedia{
     FilterBuffersink::FilterBuffersink(FilterGraph *filter_graph, const std::string &name):
 	Filter(name)
 	{
-        m_filter = avfilter_get_by_name("buffersink");
+        m_filter = (AVFilter *)avfilter_get_by_name("buffersink");
         m_filter_ctx = avfilter_graph_alloc_filter(filter_graph->getAVFilterGraph(), m_filter, name.c_str());
     }
 

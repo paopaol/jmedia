@@ -34,6 +34,9 @@ namespace JMedia {
 		VideoFilterAsciiChan &drawtext(int x, int y, std::string stitle, int size=70,
 			std::string fontfile = "simhei.ttf",std::string scolor="red");
 
+		VideoFilterAsciiChan &hwmap(const std::string &derive_device);
+		VideoFilterAsciiChan &format(const std::string &output_fmt);
+		VideoFilterAsciiChan &scale_qsv(int w, int h);
 		std::string string();
 		VideoFilterAsciiChan &reset();
 		VideoFilterAsciiChan &in(const std::string &name);

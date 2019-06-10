@@ -7,7 +7,9 @@
 
 extern "C"{
 #include <libavcodec/avcodec.h>
-};
+}
+
+#include <jmedia/codec/decoder.h>
 
 namespace JMedia{
     struct Packet{
@@ -23,6 +25,7 @@ namespace JMedia{
 			unref();
 		}
         AVPacket    m_pkt;
+        AVMediaType         media_type;
     };
 
     struct Stream{

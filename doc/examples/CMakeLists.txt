@@ -13,15 +13,19 @@ target_link_libraries(read_metadata avformat avdevice avfilter avcodec  avutil s
 add_executable(video_in_video video_in_video.cpp)
 target_link_libraries(video_in_video avformat avdevice avfilter avcodec  avutil swscale swresample jmedia Winmm)
 
+#add_executable(example_muxer example_muxer.cpp)
+#target_link_libraries(example_muxer avformat avdevice avfilter avcodec  avutil swscale swresample jmedia Winmm)
+
 set_target_properties(
 	video_watermark
 	decode_media
 	scale_video
 	read_metadata
 	video_in_video
+  #example_muxer
 	PROPERTIES
 	FOLDER
-	"example"
+	"jmedia/example"
 )
 
 

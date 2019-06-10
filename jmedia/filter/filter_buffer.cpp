@@ -5,7 +5,8 @@ extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavfilter/buffersrc.h>
-#include <libavfilter/avfiltergraph.h>
+//#include <libavfilter/avfiltergraph.h>
+#include <libavfilter/avfilter.h>
 #include <libavutil/opt.h>
 }
 
@@ -17,7 +18,7 @@ namespace JMedia {
 	FilterBuffer::FilterBuffer(FilterGraph *filter_graph, const std::string &name):
 		Filter(name)
 	{
-        m_filter = avfilter_get_by_name("buffer");
+        m_filter = (AVFilter *)avfilter_get_by_name("buffer");
 		m_filter_ctx = avfilter_graph_alloc_filter(filter_graph->getAVFilterGraph(), m_filter, name.c_str());
 	}
 

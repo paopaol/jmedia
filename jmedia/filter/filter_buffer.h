@@ -7,7 +7,7 @@ extern "C" {
 #include <libavutil/rational.h>
 }
 
-#include <Error.h>
+#include <error.h>
 #include "filter.h"
 #include "filter_graph.h"
 

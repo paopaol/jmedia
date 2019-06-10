@@ -11,7 +11,7 @@ extern "C" {
 #include <libavutil/rational.h>
 }
 
-#include <Error.h>
+#include <error.h>
 #include "Filter.h"
 #include "filter_graph.h"
 

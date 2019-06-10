@@ -46,6 +46,7 @@ namespace JMedia {
 
             av_strerror(error, err_str, sizeof(err_str));
             m_error_string = err_str;
+			m_error_code = error;
         }
         int error_code(){
             return m_error_code;

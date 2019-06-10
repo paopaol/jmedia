@@ -22,7 +22,7 @@ extern "C"{
 
 };
 
-#include <Error.h>
+#include <jmedia/error.h>
 
 namespace JMedia{
 
